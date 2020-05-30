@@ -44,13 +44,13 @@ const productSchema = new Schema({
     stock_status:{ // trạng thái hàng như thế nào? 1: còn hàng, 0: hết hàng
         type: Boolean,
     },
-    status_text:{ // còn hàng hay k?
+    status_text:{ // text trạng thái hàng
         type: String
     },
     rating_comment:{ // các bài đánh giá
         type: Schema.Types.ObjectId
     },
-    
+    is_freeship: Boolean,
 });
 
 module.exports = mongoose.model("Product", productSchema);

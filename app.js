@@ -21,7 +21,7 @@ app.use((req, res, next) => {
     next();
 });
 
-const uri = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0-wpib7.mongodb.net/${process.env.MONGO_DB}?retryWrites=true&w=majority`;
+const uri = `mongodb+srv://khangse616:khangse616@cluster0-wpib7.mongodb.net/fashion-shop?retryWrites=true&w=majority`;
 
 mongoose.connect(uri, {useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify:false});
 mongoose.connection.once("open", ()=>{
@@ -40,5 +40,5 @@ app.use(
 );
 
 app.listen(8000, ()=>{
-    console.log("now listening for request on port https://localhost:8000");
+    console.log("now listening for request on port http://localhost:8000");
 });

@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 
-const ratingSchema = mongoose.Schema({
+const Schema = mongoose.Schema;
+
+const ratingStarSchema = new Schema({
     star1: Number,
     star2: Number,
     star3: Number,
@@ -8,4 +10,4 @@ const ratingSchema = mongoose.Schema({
     star5: Number
 });
 
-module.exports = mongoose.model("Rating", ratingSchema);
+module.exports = mongoose.model("RatingStar", ratingStarSchema);

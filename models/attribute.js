@@ -1,11 +1,12 @@
 const mongoose = require("mongoose");
 
-const attributeSchema = new mongoose.Schema({
+const Schema = mongoose.Schema;
+
+const attributeSchema = new Schema({
     name:{
         type: String,
         require: true
-    },
-    value:[
-        
-    ]
-})
+    }
+});
+
+module.exports = mongoose.model("Attribute", attributeSchema);
