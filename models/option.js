@@ -10,7 +10,11 @@ const optionSchema = new Schema({
     image: {
         type: String
     },
-    type_option : String
+    attribute_id:{
+        type: Schema.Types.ObjectId,
+        ref: 'Attribute'
+    },
+    type_option: String
 });
 
 module.exports = mongoose.model("Option", optionSchema);

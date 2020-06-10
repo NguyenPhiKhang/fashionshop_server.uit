@@ -11,12 +11,14 @@ type AuthData {
   token: String!
   tokenExpiration: Int!
 }
+type 
 input UserInput {
   email: String!
   password: String!
 }
 type RootQuery {
     login(email: String!, password: String!): AuthData!
+
 }
 type RootMutation {
     createUser(userInput: UserInput): User
