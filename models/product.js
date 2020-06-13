@@ -3,6 +3,10 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const productSchema = new Schema({
+    product_code:{
+        type: String,
+        require: true
+    },
     name: {
         type: String,
         require: true
@@ -43,6 +47,7 @@ const productSchema = new Schema({
     },
     stock_status: { // trạng thái hàng như thế nào? 1: còn hàng, 0: hết hàng
         type: Boolean,
+        default: true
     },
     status_text: { // text trạng thái hàng
         type: String
