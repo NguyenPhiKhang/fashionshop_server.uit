@@ -10,6 +10,14 @@ const userSchema = new Schema({
   password: {
     type: String,
     required: true
+  },
+  permission_id:{
+    type: Schema.Types.ObjectId,
+    require: true
+  },
+  record_status: {
+    type: Boolean,
+    require: true
   }
 });
 

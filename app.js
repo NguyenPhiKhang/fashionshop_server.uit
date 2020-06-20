@@ -29,7 +29,7 @@ mongoose.connection.once("open", ()=>{
 });
 
 app.use(isAuth);
-s
+
 app.use(
     '/graphql',
     graphqlHttp({

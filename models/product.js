@@ -61,7 +61,11 @@ const productSchema = new Schema({
             type: Schema.Types.ObjectId,
             ref: 'Attribute_Option'
         }
-    ]
+    ],
+    record_status: {
+        type: Boolean,
+        required: true
+    }
 });
 
 module.exports = mongoose.model("Product", productSchema);
