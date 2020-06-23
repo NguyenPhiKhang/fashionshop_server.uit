@@ -39,6 +39,8 @@ app.use(
     })
 );
 
-app.listen(8000, ()=>{
-    console.log("now listening for request on port http://localhost:8000");
+var port = process.env.PORT || 8000;
+
+app.listen(port, ()=>{
+    console.log(`now listening for request on port http://localhost:${port}/graphql`);
 });
