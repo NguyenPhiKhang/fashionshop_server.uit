@@ -14,7 +14,7 @@ const categorySchema = new Schema(
         icon: { type: String },
         level_cat:{type: Number},
         parent_id: {
-            type: String
+            type: Schema.Types.ObjectId
         },
     }
 );

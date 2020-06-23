@@ -2,6 +2,16 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const Account = require('../../models/account');
+const Permission = require("../../models/permission");
+const DataLoader = require('dataloader');
+
+const permissionLoader = new DataLoader(permission_id =>{
+  return Permission.find({_id: {$in: permission_id}});
+});
+
+const permission = async (permission_id)=>{
+  return await permissionLoader.load(permission_id);
+}
 
 module.exports = {
   createAccount: async args => {
@@ -42,6 +52,6 @@ module.exports = {
         expiresIn: '1h'
       }
     );
-    return { accountId: account.id, token: token, tokenExpiration: 1 };
+    return { accountId: account.id, token: token, tokenExpiration: 1, permission: permission.bind(this, account.permission_id) };
   }
 };
