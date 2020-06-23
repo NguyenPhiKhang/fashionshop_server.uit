@@ -1,24 +1,25 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-const User = require('../../models/user');
+const Account = require('../../models/account');
 
 module.exports = {
-  createUser: async args => {
+  createAccount: async args => {
     try {
-      const existingUser = await User.findOne({ email: args.userInput.email });
-      if (existingUser) {
-        throw new Error('User exists already.');
+      const existingAccount = await Account.findOne({ email: args.accountInput.email });
+      if (existingAccount) {
+        throw new Error('Account exists already.');
       }
-      const hashedPassword = await bcrypt.hash(args.userInput.password, 12);
+      const hashedPassword = await bcrypt.hash(args.accountInput.password, 12);
 
-      const user = new User({
-        email: args.userInput.email,
+      const account = new Account({
+        email: args.accountInput.email,
         password: hashedPassword,
-        permission_id: args.userInput.permission_id
+        permission_id: args.accountInput.permission_id,
+        record_status: true
       });
 
-      const result = await user.save();
+      const result = await account.save();
 
       return { ...result._doc, password: null, _id: result.id };
     } catch (err) {
@@ -26,21 +27,21 @@ module.exports = {
     }
   },
   login: async ({ email, password }) => {
-    const user = await User.findOne({ email: email });
-    if (!user) {
-      throw new Error('User does not exist!');
+    const account = await Account.findOne({ email: email });
+    if (!account) {
+      throw new Error('Account does not exist!');
     }
-    const isEqual = await bcrypt.compare(password, user.password);
+    const isEqual = await bcrypt.compare(password, account.password);
     if (!isEqual) {
       throw new Error('Password is incorrect!');
     }
     const token = jwt.sign(
-      { userId: user.id, email: user.email },
+      { accountId: account.id, email: account.email },
       'somesupersecretkey',
       {
         expiresIn: '1h'
       }
     );
-    return { userId: user.id, token: token, tokenExpiration: 1 };
+    return { accountId: account.id, token: token, tokenExpiration: 1 };
   }
 };

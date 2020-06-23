@@ -1,13 +1,14 @@
 const { buildSchema } = require('graphql');
 
 module.exports = buildSchema(`
-type User {
+type Account {
   _id: ID!
   email: String!
   password: String
+  record_status: Boolean
 }
 type AuthData {
-  userId: ID!
+  accountId: ID!
   token: String!
   tokenExpiration: Int!
 }
@@ -16,7 +17,7 @@ type Permission{
   name: String!
   desc: String
 }
-input UserInput {
+input AccountInput {
   email: String!
   password: String!
   permission_id: ID!
@@ -27,10 +28,11 @@ input PermissionInput{
 }
 type RootQuery {
     login(email: String!, password: String!): AuthData!
-    getPermission: [Permission]
+    getPermission: [Permission]!
+    getIdPermission(name: String!): ID!
 }
 type RootMutation {
-    createUser(userInput: UserInput): User
+    createAccount(accountInput: AccountInput): Account
     createPermission(permissionInput: PermissionInput): Permission
 }
 schema {

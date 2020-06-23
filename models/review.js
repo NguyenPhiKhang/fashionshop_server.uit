@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const reviewSchema = new Schema({
-    customer_id: {
+    person_id: {
         type: Schema.Types.ObjectId,
         require: true
     },

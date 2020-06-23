@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
 
-const customerSchema = new Schema({
+const personSchema = new Schema({
     name: {
         type: String
     },
@@ -21,11 +21,13 @@ const customerSchema = new Schema({
     shipping_address:{
         type: String,
     },
-    user_id:{
-        type: Schema.Types.ObjectId
+    account_id:{
+        type: Schema.Types.ObjectId,
+        require: true,
+        ref: "Account"
     }
 },
     { timestamps: true }
 );
 
-module.exports = mongoose.model("Customer", customerSchema);
+module.exports = mongoose.model("Person", personSchema);

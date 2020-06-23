@@ -26,5 +26,13 @@ module.exports = {
     } catch (err) {
       throw err;
     }
+  },
+  getIdPermission: async (args)=>{
+    try{
+      const result = await Permission.findOne({name: args.name});
+      return result._id;
+    }catch(err){
+      throw err;
+    }
   }
 }

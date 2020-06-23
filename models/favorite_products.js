@@ -7,7 +7,7 @@ const favoriteProductSchema = new Schema({
         type: Schema.Types.ObjectId,
         require: true,
     },
-    customer_id:{
+    person_id:{
         type: Schema.Types.ObjectId,
         require: true,
     }
