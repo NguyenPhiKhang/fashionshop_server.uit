@@ -1,7 +1,0 @@
-{
-    "env": {
-        "MONGO_USER": "khangse616",
-        "MONGO_PASSWORD": "khangse616",
-        "MONGO_DB": "fashion-shop"
-    }
-}
