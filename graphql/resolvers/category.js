@@ -19,5 +19,11 @@ module.exports = {
             throw err;
           }
     },
-    
+    // createCategory: async (args)=>{
+        
+
+    //     const result = new Category({
+    //         name: 
+    //     })
+    // }
 }
