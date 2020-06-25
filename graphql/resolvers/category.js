@@ -8,6 +8,8 @@ module.exports = {
         try {
             const result = await Category.find({});
             return result.map(category => {
+                if(category.parent_id === null)
+                    return category
                 return tranformCategory(category);
             });
         } catch (err) {
@@ -17,6 +19,8 @@ module.exports = {
     getCategoryById: async (args)=>{
         try{
             const result = await Category.findById(args.id);
+            if(result.parent_id === null)
+                return result;
             return tranformCategory(result);
           }catch(err){
             throw err;
