@@ -22,9 +22,10 @@ type Category{
   _id: ID!
   category_code: Int!
   name: String!
-  icon: String!
+  icon: String
+  image: String
   level_cat: Int!
-  parent_code: Int
+  parent: Category
 }
 input AccountInput {
   email: String!
@@ -38,8 +39,9 @@ input PermissionInput{
 input CategoryInput{
   name: String!
   icon: String
+  image: String
   level_cat: Int!
-  parent_id: Int
+  parent_id: String
 }
 type RootQuery {
     login(email: String!, password: String!): AuthData!
