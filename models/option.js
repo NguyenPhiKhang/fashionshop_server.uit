@@ -3,12 +3,13 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const optionSchema = new Schema({
+    option_code: {
+        type: Number,
+        require: true
+    },
     name: {
         type: String,
         require: true
-    },
-    image: {
-        type: String
     },
     attribute_id:{
         type: Schema.Types.ObjectId,

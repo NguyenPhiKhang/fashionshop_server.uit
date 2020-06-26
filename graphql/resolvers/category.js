@@ -1,5 +1,5 @@
 const Category = require("../../models/category");
-const { tranformCategory } = require("./merge");
+const { transformCategory } = require("./merge");
 const genCode = require("./sysGenId");
 
 
@@ -9,8 +9,8 @@ module.exports = {
             const result = await Category.find({});
             return result.map(category => {
                 if(category.parent_id === null)
-                    return category
-                return tranformCategory(category);
+                    return category;
+                return transformCategory(category);
             });
         } catch (err) {
             throw err;
@@ -21,7 +21,7 @@ module.exports = {
             const result = await Category.findById(args.id);
             if(result.parent_id === null)
                 return result;
-            return tranformCategory(result);
+            return transformCategory(result);
           }catch(err){
             throw err;
           }
@@ -42,7 +42,7 @@ module.exports = {
         const result = await category.save();
 
         if(args.categoryInput.parent_id)
-            return tranformCategory(result);
+            return transformCategory(result);
         else return result;
     }
 }
