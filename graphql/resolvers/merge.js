@@ -60,7 +60,7 @@ const transformOption = option => {
     }
 }
 
-const transformAttribute = atrr => {
+const transformAttribute = attr => {
     return {
         ...attr._doc,
         _id: attr.id,
