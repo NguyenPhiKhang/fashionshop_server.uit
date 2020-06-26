@@ -26,10 +26,7 @@ const productSchema = new Schema({
     description: { // mô tả sản phẩm
         type: String,
     },
-    total_comment: { // tổng comment
-        type: Number,
-    },
-    counter_like: { // tổng lượt lke
+    total_review: { // tổng review
         type: Number,
     },
     order_count: { // số lần đặt hàng
@@ -49,12 +46,10 @@ const productSchema = new Schema({
         type: Boolean,
         default: true
     },
-    status_text: { // text trạng thái hàng
-        type: String
-    },
-    rating_comment: { // các bài đánh giá
-        type: Schema.Types.ObjectId
-    },
+    review: [{ // các bài đánh giá
+        type: Schema.Types.ObjectId,
+        ref: "Review"
+    }],
     is_freeship: Boolean,
     attribute: [
         {
@@ -62,6 +57,14 @@ const productSchema = new Schema({
             ref: 'Attribute_Option'
         }
     ],
+    category_id:{
+        type: String,
+        required: true
+    },
+    categories:{
+        type: Schema.Types.ObjectId,
+        ref: "Cagegories"
+    },
     record_status: {
         type: Boolean,
         required: true
