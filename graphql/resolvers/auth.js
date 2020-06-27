@@ -57,6 +57,6 @@ module.exports = {
       }
     );
 
-    return { ...transformAccount(account), token: token, tokenExpiration: 1 };
+    return { account: transformAccount(account), token: token, tokenExpiration: 1 };
   }
 };
