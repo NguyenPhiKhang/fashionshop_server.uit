@@ -2,8 +2,10 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const Account = require('../../models/account');
-const Permission = require("../../models/permission");
-const DataLoader = require('dataloader');
+//const Permission = require("../../models/permission");
+const Person = require("../../models/person");
+
+const {transformAccount} = require("./merge");
 
 module.exports = {
   createAccount: async args => {
@@ -14,16 +16,26 @@ module.exports = {
       }
       const hashedPassword = await bcrypt.hash(args.accountInput.password, 12);
 
+      const personSchema = new Person({
+        name: args.accountInput.name
+      });
+      const person = await personSchema.save();
+
+      if(!person){
+        throw new Error("Không tạo được tài khoản!");
+      }
+      
       const account = new Account({
         email: args.accountInput.email,
         password: hashedPassword,
         permission_id: args.accountInput.permission_id,
-        record_status: true
+        record_status: true,
+        person_id: person.id
       });
 
       const result = await account.save();
 
-      return { ...result._doc, password: null, _id: result.id };
+      return transformAccount(result);
     } catch (err) {
       throw err;
     }
@@ -45,8 +57,6 @@ module.exports = {
       }
     );
 
-    const permission = await Permission.findById(account.permission_id);
-
-    return { accountId: account.id, token: token, tokenExpiration: 1, permission: permission };
+    return { ...transformAccount(account), token: token, tokenExpiration: 1 };
   }
 };

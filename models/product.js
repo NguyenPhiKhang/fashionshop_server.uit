@@ -40,7 +40,7 @@ const productSchema = new Schema({
     },
     rating_star: { // các sao đã được đánh giá
         type: Schema.Types.ObjectId,
-        ref: "Rating"
+        ref: "RatingStar"
     },
     stock_status: { // trạng thái hàng như thế nào? 1: còn hàng, 0: hết hàng
         type: Boolean,

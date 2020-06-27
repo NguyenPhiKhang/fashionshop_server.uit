@@ -23,7 +23,6 @@ const personSchema = new Schema({
     },
     account_id:{
         type: Schema.Types.ObjectId,
-        require: true,
         ref: "Account"
     }
 },

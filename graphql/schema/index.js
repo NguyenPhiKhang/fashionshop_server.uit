@@ -6,12 +6,13 @@ type Account {
   email: String!
   password: String
   record_status: Boolean
+  person: Person!
+  permission: Permission!
 }
 type AuthData {
-  accountId: ID!
+  account: Account!
   token: String!
   tokenExpiration: Int!
-  permission: Permission!
 }
 type Permission{
   _id: ID!
@@ -47,17 +48,14 @@ type RatingStar{
   star3: Int
   star4: Int
   star5: Int
-  product_id: ID!
+  product: Product!
 }
 type Categories{
   _id: ID!
-  category_level1_id: Int!
-  category_level1_name: String!
-  category_level2_id: Int!
-  category_level2_name: String!
-  category_level3_id: Int!
-  category_level3_name: String!
-  products: [Product]
+  category_level1: Category!
+  category_level2: Category!
+  category_level3: Category!
+  products: [Product]!
 }
 type Product{
   _id: ID!
@@ -83,11 +81,40 @@ type Product{
 }
 type Review{
   _id: ID!
+  person: Person!
+  product: Product!
+  data: String!
+  image: [String]
+  star: Float
+  createdAt: String!
+  updatedAt: String!
 }
 type Attribute_Option{
   _id: ID!
+  attribute: Attribute!
+  product: Product!
+  value: [Option_Amount]!
+}
+type Option_Amount{
+  _id: ID!
+  option_id: Option!
+  attribute_option: Attribute_Option!
+  amount: Int!
+}
+type Person{
+  _id: ID!
+  name: String!
+  avatar: String
+  sex: String
+  number_phone: String
+  birthday: String
+  shipping_address: String
+  account: Account!
+  createdAt: String!
+  updatedAt: String!
 }
 input AccountInput {
+  name: String!
   email: String!
   password: String!
   permission_id: ID!
@@ -129,7 +156,6 @@ type RootQuery {
     getAllCategory: [Category]!
     getCategoryById(id: ID!): Category!
     getAttributeById(id: ID!): Attribute!
-    getOptionByAttribute(attr_id: ID!, typeOption: String): [Option]!
 }
 type RootMutation {
     createAccount(accountInput: AccountInput): Account

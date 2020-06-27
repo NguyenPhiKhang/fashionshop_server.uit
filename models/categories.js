@@ -3,12 +3,18 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const categoriesSchema = new Schema({
-    category_level1_id: Number,
-    category_level1_name: String,
-    category_level2_id: Number,
-    category_level2_name: String,
-    category_level3_id: Number,
-    category_level3_name: String,
+    category_level1_id: {
+        type: Schema.Types.ObjectId,
+        require: true
+    },
+    category_level2_id: {
+        type: Schema.Types.ObjectId,
+        require: true
+    },
+    category_level3_id: {
+        type: Schema.Types.ObjectId,
+        require: true
+    },
     products: [
         {
             type: Schema.Types.ObjectId,

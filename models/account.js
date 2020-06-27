@@ -15,6 +15,11 @@ const accountSchema = new Schema({
     type: Schema.Types.ObjectId,
     require: true
   },
+  person_id: {
+    type: Schema.Types.ObjectId,
+    require: true,
+    ref: "Person"
+  },
   record_status: {
     type: Boolean,
     require: true

@@ -14,6 +14,10 @@ const reviewSchema = new Schema({
     data: {
         type: String
     },
+    image:[{
+        type: String
+    }],
+    star: Number
 },
     { timestamps }
 );
