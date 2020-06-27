@@ -34,6 +34,8 @@ const permissionLoader = new DataLoader(perId => {
 
 const categoryBind = async (parent_id) => {
     try {
+        if(!parent_id)
+            return null;
         const category = await categoryLoader.load(parent_id);
         return transformCategory(category);
     } catch (error) {

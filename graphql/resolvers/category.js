@@ -27,7 +27,8 @@ module.exports = {
           }
     },
     createCategory: async (args)=>{
-        const code = await genCode("Category");
+        const nameSchema = "Category"+args.categoryInput.level_cat.toString();
+        const code = await genCode(nameSchema);
         if(typeof(args.categoryInput.parent_id) === 'undefined'){
             args.categoryInput.parent_id = null;
         }
