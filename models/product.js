@@ -11,6 +11,9 @@ const productSchema = new Schema({
         type: String,
         require: true
     },
+    img_url:{
+        type: String
+    },
     images: [{ // list image sản phẩm
         type: String,
     }],
@@ -63,7 +66,7 @@ const productSchema = new Schema({
     },
     categories:{
         type: Schema.Types.ObjectId,
-        ref: "Cagegories"
+        ref: "LevelCategories"
     },
     record_status: {
         type: Boolean,

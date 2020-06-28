@@ -27,6 +27,7 @@ type Category{
   image: String
   level_cat: Int!
   parent: Category
+  subCat: [Category]
 }
 type Attribute{
   _id: ID!
@@ -50,7 +51,7 @@ type RatingStar{
   star5: Int
   product: Product!
 }
-type Categories{
+type LevelCategories{
   _id: ID!
   category_level1: Category!
   category_level2: Category!
@@ -61,6 +62,7 @@ type Product{
   _id: ID!
   product_code: Int!
   name: String!
+  img_url: String
   images: [String]
   price: Float!
   final_price: Float!
@@ -76,7 +78,7 @@ type Product{
   is_freeship: Boolean
   attribute: [Attribute_Option]!
   category_id: String
-  categories: Categories
+  categories: LevelCategories
   record_status: Boolean!
 }
 type Review{
@@ -143,17 +145,15 @@ input ProductInput{
   description: String!
   weight: Float
   short_description: String
-  stock_status: Boolean!
   is_freeship: Boolean
   attribute: [ID]!
   category_id: String
-  categories: ID!
 }
 type RootQuery {
     login(email: String!, password: String!): AuthData!
     getPermission: [Permission]!
     getIdPermission(name: String!): ID!
-    getAllCategory: [Category]!
+    getAllCategory(level: Int): [Category]!
     getCategoryById(id: ID!): Category!
     getAttributeById(id: ID!): Attribute!
 }

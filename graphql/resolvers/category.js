@@ -1,35 +1,42 @@
 const Category = require("../../models/category");
-const { transformCategory } = require("./merge");
+const { transformCategory, transformSubCategory } = require("./merge");
 const genCode = require("./sysGenId");
 
 
 module.exports = {
-    getAllCategory: async () => {
+    getAllCategory: async (args) => {
         try {
-            const result = await Category.find({});
-            return result.map(category => {
-                if(category.parent_id === null)
-                    return category;
-                return transformCategory(category);
-            });
+            if (!args.level || typeof (args.level) === "undefined") {
+                const result = await Category.find({});
+                return result.map(category => {
+                    if (category.parent_id === null)
+                        return category;
+                    return transformCategory(category);
+                });
+            }else{
+                const result = await Category.find({level_cat: {$in: args.level}});
+                return result.map(category =>{
+                    return transformSubCategory(category);
+                });
+            }
         } catch (err) {
             throw err;
         }
     },
-    getCategoryById: async (args)=>{
-        try{
+    getCategoryById: async (args) => {
+        try {
             const result = await Category.findById(args.id);
-            if(result.parent_id === null)
+            if (result.parent_id === null)
                 return result;
             return transformCategory(result);
-          }catch(err){
+        } catch (err) {
             throw err;
-          }
+        }
     },
-    createCategory: async (args)=>{
-        const nameSchema = "Category"+args.categoryInput.level_cat.toString();
+    createCategory: async (args) => {
+        const nameSchema = "Category" + args.categoryInput.level_cat.toString();
         const code = await genCode(nameSchema);
-        if(typeof(args.categoryInput.parent_id) === 'undefined'){
+        if (typeof (args.categoryInput.parent_id) === 'undefined') {
             args.categoryInput.parent_id = null;
         }
         const category = new Category({
@@ -42,7 +49,7 @@ module.exports = {
         });
         const result = await category.save();
 
-        if(args.categoryInput.parent_id)
+        if (args.categoryInput.parent_id)
             return transformCategory(result);
         else return result;
     }

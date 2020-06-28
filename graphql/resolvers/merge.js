@@ -12,6 +12,13 @@ const categoryLoader = new DataLoader(id => {
     return Category.find({_id: {$in: id}});
 });
 
+const categorySubLoader = new DataLoader(ids => {
+    const result = ids.map(id=>{
+        return Category.find({parent_id: {$in: id}});
+    });
+    return Promise.all(result);
+})
+
 const optionLoader = new DataLoader(optionId => {
     return OptionDetail(optionId);
 });
@@ -40,6 +47,17 @@ const categoryBind = async (parent_id) => {
         return transformCategory(category);
     } catch (error) {
         throw error;
+    }
+}
+
+const categorySubBind = async (parent_id)=>{
+    try {
+        const categorysubs = await categorySubLoader.load(parent_id);
+        return categorysubs.map(category => {
+            return transformSubCategory(category);
+        });
+    } catch (err) {
+        throw err;
     }
 }
 
@@ -97,6 +115,15 @@ const transformCategory = category => {
     }
 }
 
+const transformSubCategory = category =>{
+    return{
+        ...category._doc,
+        _id: category.id,
+        parent: categoryBind.bind(this, category._doc.parent_id),
+        subCat: categorySubBind.bind(this, category.id)
+    }
+}
+
 const transformOption = option => {
     return {
         ...option._doc,
@@ -135,6 +162,7 @@ const transformPerson = person => {
 
 module.exports = {
     transformCategory: transformCategory,
+    transformSubCategory,
     transformOption: transformOption,
     transformAttribute: transformAttribute,
     transformAccount: transformAccount,

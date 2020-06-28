@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
 
-const categoriesSchema = new Schema({
+const levelCategoriesSchema = new Schema({
     category_level1_id: {
         type: Schema.Types.ObjectId,
         require: true
@@ -23,4 +23,4 @@ const categoriesSchema = new Schema({
     ]
 });
 
-module.exports = mongoose.model("Categories", categoriesSchema);
+module.exports = mongoose.model("LevelCategories", levelCategoriesSchema);
