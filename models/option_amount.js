@@ -3,15 +3,13 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const optionAmount = new Schema({
-    option_id: {
-        type: Schema.Types.ObjectId,
+    option_code: {
+        type: Number,
         required: true,
-        ref: "Option"
     },
-    attribute_option_id: {
-        type: Schema.Types.ObjectId,
+    attribute_option_code: {
+        type: Number,
         require: true,
-        ref: "Attribute_Option"
     },
     amount: {
         type: Number

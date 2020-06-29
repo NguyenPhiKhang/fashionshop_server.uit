@@ -93,13 +93,14 @@ type Review{
 }
 type Attribute_Option{
   _id: ID!
+  attr_opt_code: Int!
   attribute: Attribute!
   product: Product!
   value: [Option_Amount]!
 }
 type Option_Amount{
   _id: ID!
-  option_id: Option!
+  option: Option!
   attribute_option: Attribute_Option!
   amount: Int!
 }
@@ -146,8 +147,16 @@ input ProductInput{
   weight: Float
   short_description: String
   is_freeship: Boolean
-  attribute: [ID]!
+  attribute: [AttributeOptionInput]!
   category_id: String
+}
+input OptionAmountInput{
+  option_code: Int
+  amount: Int
+}
+input AttributeOptionInput{
+  attribute_code: Int!
+  options: [OptionAmountInput]!
 }
 type RootQuery {
     login(email: String!, password: String!): AuthData!

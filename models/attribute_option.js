@@ -3,22 +3,22 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const attributeOptionSchema = new Schema({
-    attribute_id:{
-        type: Schema.Types.ObjectId,
-        required: true,
-        ref: "Attribute"
+    attr_opt_code: {
+        type: Number,
+        required: true
     },
-    product_id:{
-        type: Schema.Types.ObjectId,
-        require: true,
-        ref: 'Product'
+    attribute_code: {
+        type: Number,
+        required: true
     },
-    value:[
+    product_code: {
+        type: Number,
+        require: true
+    },
+    value: [
         {
-            option_id: {
-                type: Schema.Types.ObjectId,
-                ref: 'Option_Amount'
-            }
+            type: Schema.Types.ObjectId,
+            ref: 'Option_Amount'
         }
     ]
 });

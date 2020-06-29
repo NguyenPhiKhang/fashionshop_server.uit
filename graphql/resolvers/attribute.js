@@ -1,5 +1,4 @@
 const Attribute = require("../../models/attribute");
-const Option = require("../../models/option");
 const { transformAttribute } = require("./merge");
 const genCode = require("./sysGenId");
 
@@ -7,14 +6,6 @@ module.exports = {
     getAttributeById: async (args)=>{
         try {
             const result = await Attribute.findById(args.id);
-            // const value = (args)=>{
-            //     console.log(args.typeOption);
-            //     const a = result._doc.value.map(op=>{
-            //         return Option.find({_id: op, type_option: args.typeOption});
-            //     });
-            //     return a;
-            // }
-            // console.log(value);
             return transformAttribute(result);
         } catch (err) {
             throw err;
