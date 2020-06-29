@@ -4,15 +4,15 @@ const Schema = mongoose.Schema;
 
 const levelCategoriesSchema = new Schema({
     category_level1_id: {
-        type: Schema.Types.ObjectId,
+        type: Number,
         require: true
     },
     category_level2_id: {
-        type: Schema.Types.ObjectId,
+        type: Number,
         require: true
     },
     category_level3_id: {
-        type: Schema.Types.ObjectId,
+        type: Number,
         require: true
     },
     products: [

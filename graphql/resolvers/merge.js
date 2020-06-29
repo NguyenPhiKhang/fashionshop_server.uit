@@ -19,8 +19,8 @@ const categorySubLoader = new DataLoader(ids => {
     return Promise.all(result);
 })
 
-const optionLoader = new DataLoader(optionId => {
-    return OptionDetail(optionId);
+const optionLoader = new DataLoader(options => {
+    return OptionDetail(options);
 });
 
 const attributeLoader = new DataLoader(attrId => {
@@ -98,7 +98,7 @@ const PersonBind = async (personId) => {
 
 const OptionDetail = async (optionId) => {
     try {
-        const options = await Option.find({ _id: { $in: optionId } });
+        const options = await Option.find({ _id: { $in: optionId }});
         return options.map(option => {
             return transformOption(option);
         });
@@ -132,11 +132,25 @@ const transformOption = option => {
     }
 }
 
-const transformAttribute = attr => {
+const transformAttribute = (attr) => {
     return {
         ...attr._doc,
         _id: attr.id,
-        value: () => optionLoader.loadMany(attr._doc.value)
+        value: async (args) =>  {
+            // if(typeof(args.typeOption)==='undefined')
+            //     options = await Option.find({ _id: { $in: attr._doc.value } });
+            // else options = await Option.find({ _id: { $in: attr._doc.value }, type_option: args.typeOption });
+            if(typeof(args.typeOption)==='undefined'|| attr._doc.name !== "Kích thước")
+            {
+                return optionLoader.loadMany(attr._doc.value);
+            }
+            else {
+                const options = (await Option.find({ _id: { $in: attr._doc.value }, type_option: args.typeOption })).map(op => op.id);
+                if(options === null)
+                    return null;
+                else return optionLoader.loadMany(options);
+            }
+        }
     }
 }
 

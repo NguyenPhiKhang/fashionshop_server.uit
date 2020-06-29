@@ -33,7 +33,7 @@ type Attribute{
   _id: ID!
   attribute_code: Int!
   name: String!
-  value: [Option]!
+  value(typeOption: String): [Option]!
 }
 type Option{
   _id: ID!
@@ -154,7 +154,8 @@ type RootQuery {
     getPermission: [Permission]!
     getIdPermission(name: String!): ID!
     getAllCategory(level: Int): [Category]!
-    getCategoryById(id: ID!): Category!
+    getCategoryById(id: ID!, typeOption: String): Category!
+    getAllAttribute: [Attribute]!
     getAttributeById(id: ID!): Attribute!
 }
 type RootMutation {
