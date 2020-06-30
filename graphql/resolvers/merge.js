@@ -19,9 +19,9 @@ const categorySubLoader = new DataLoader(ids => {
     return Promise.all(result);
 })
 
-const optionLoader = new DataLoader(options => {
-    return OptionDetail(options);
-});
+// const optionLoader = new DataLoader(options => {
+//     return OptionDetail(options);
+// });
 
 const attributeLoader = new DataLoader(attrId => {
     return Attribute.find({ _id: { $in: attrId } });
@@ -142,13 +142,14 @@ const transformAttribute = (attr) => {
             // else options = await Option.find({ _id: { $in: attr._doc.value }, type_option: args.typeOption });
             if(typeof(args.typeOption)==='undefined'|| attr._doc.name !== "Kích thước")
             {
-                return optionLoader.loadMany(attr._doc.value);
+                // return await optionLoader.loadMany(attr._doc.value);
+                return await OptionDetail(attr._doc.value);
             }
             else {
                 const options = (await Option.find({ _id: { $in: attr._doc.value }, type_option: args.typeOption })).map(op => op.id);
                 if(options === null)
                     return null;
-                else return optionLoader.loadMany(options);
+                else return await OptionDetail(options);
             }
         }
     }

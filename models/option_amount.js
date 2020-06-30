@@ -3,11 +3,13 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const optionAmount = new Schema({
-    option_code: {
-        type: Number,
-        required: true,
+    option_color: {
+        type: Schema.Types.ObjectId,
     },
-    attribute_option_code: {
+    option_size: {
+        type: Schema.Types.ObjectId,
+    },
+    product_code: {
         type: Number,
         require: true,
     },
@@ -16,4 +18,4 @@ const optionAmount = new Schema({
     }
 });
 
-module.exports = mongoose.model("Option_Amount", optionAmount);
+module.exports = mongoose.model("OptionAmount", optionAmount);

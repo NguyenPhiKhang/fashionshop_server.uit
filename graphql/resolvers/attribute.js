@@ -6,7 +6,7 @@ module.exports = {
     getAttributeById: async (args)=>{
         try {
             const result = await Attribute.findById(args.id);
-            return transformAttribute(result);
+            return await transformAttribute(result);
         } catch (err) {
             throw err;
         }
@@ -14,8 +14,8 @@ module.exports = {
     getAllAttribute: async () =>{
         try{
             const result = await Attribute.find({});
-            return await result.map(attr=>{
-                return transformAttribute(attr);
+            return result.map(async attr=>{
+                return await transformAttribute(attr);
             });
 
         }catch(error){

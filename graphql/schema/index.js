@@ -76,7 +76,8 @@ type Product{
   stock_status: Boolean!
   review: [Review]
   is_freeship: Boolean
-  attribute: [Attribute_Option]!
+  attribute: [AttributeProduct]
+  option_amount: [OptionAmount]
   category_id: String
   categories: LevelCategories
   record_status: Boolean!
@@ -91,17 +92,17 @@ type Review{
   createdAt: String!
   updatedAt: String!
 }
-type Attribute_Option{
+type AttributeProduct{
   _id: ID!
-  attr_opt_code: Int!
-  attribute: Attribute!
-  product: Product!
-  value: [Option_Amount]!
+  attribute_code: Int!
+  product_code: Int!
+  value: [Option]
 }
-type Option_Amount{
+type OptionAmount{
   _id: ID!
-  option: Option!
-  attribute_option: Attribute_Option!
+  option_color: Option!
+  option_size: Option!
+  product_code: Product!
   amount: Int!
 }
 type Person{
@@ -147,16 +148,18 @@ input ProductInput{
   weight: Float
   short_description: String
   is_freeship: Boolean
-  attribute: [AttributeOptionInput]!
-  category_id: String
+  category_id: String!
+  option_amount: [OptionAmountInput]!
 }
 input OptionAmountInput{
-  option_code: Int
-  amount: Int
+  color_id: ID
+  size_id: ID
+  amount: Int!
 }
-input AttributeOptionInput{
+input AttributeProductInput{
   attribute_code: Int!
-  options: [OptionAmountInput]!
+  product_code: Int!
+  value: [ID]!
 }
 type RootQuery {
     login(email: String!, password: String!): AuthData!

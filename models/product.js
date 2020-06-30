@@ -57,7 +57,13 @@ const productSchema = new Schema({
     attribute: [
         {
             type: Schema.Types.ObjectId,
-            ref: 'Attribute_Option'
+            ref: 'AttributeProduct'
+        }
+    ],
+    option_amount: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'Option_Amount'
         }
     ],
     category_id:{

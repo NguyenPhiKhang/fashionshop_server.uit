@@ -2,11 +2,7 @@ const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
 
-const attributeOptionSchema = new Schema({
-    attr_opt_code: {
-        type: Number,
-        required: true
-    },
+const attributeProductSchema = new Schema({
     attribute_code: {
         type: Number,
         required: true
@@ -18,8 +14,8 @@ const attributeOptionSchema = new Schema({
     value: [
         {
             type: Schema.Types.ObjectId,
-            ref: 'Option_Amount'
+            ref: 'Option'
         }
     ]
 });
-module.exports = mongoose.model("Attribute_Option", attributeOptionSchema);
+module.exports = mongoose.model("AttributeProduct", attributeProductSchema);
