@@ -216,7 +216,7 @@ const options = async (optionIds) => {
         //     );
         // });
         if (options.length !== optionIds.length) {
-            console.log("ok");
+            // console.log("ok");
             const arrayOp = await (optionIds.map(opId => {
                 return options.find(oId => oId._id.toString() === opId.toString());
             }));
@@ -278,11 +278,11 @@ const products = async productIds => {
 
             prods = await Product.find({ _id: { $in: productIds } });
         }
-        prods.sort((a, b) => {
-            return (
-                productIds.indexOf(a._id.toString()) - productIds.indexOf(b._id.toString())
-            );
-        });
+        // prods.sort((a, b) => {
+        //     return (
+        //         productIds.indexOf(a._id.toString()) - productIds.indexOf(b._id.toString())
+        //     );
+        // });
         return prods.map(prod => {
             return transformProduct(prod);
         });
@@ -311,11 +311,11 @@ const optionAmounts = async opAmountIds => {
     try {
         const optionAmounts = await OptionAmount.find({ _id: { $in: opAmountIds } });
 
-        optionAmounts.sort((a, b) => {
-            return (
-                opAmountIds.indexOf(a._id.toString()) - opAmountIds.indexOf(b._id.toString())
-            );
-        });
+        // optionAmounts.sort((a, b) => {
+        //     return (
+        //         opAmountIds.indexOf(a._id.toString()) - opAmountIds.indexOf(b._id.toString())
+        //     );
+        // });
         return await Promise.all(optionAmounts.map(async opAmount => {
             return await transformOptionAmount(opAmount);
         }));
