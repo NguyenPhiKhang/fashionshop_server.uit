@@ -165,7 +165,7 @@ type RootQuery {
     getAllAttribute: [Attribute]!
     getAttributeById(id: ID!): Attribute!
     getAllOption: [Option]!
-    getProductById(id: ID!): Product!
+    getProduct(id: ID): [Product]!
 }
 type RootMutation {
     createAccount(accountInput: AccountInput): Account

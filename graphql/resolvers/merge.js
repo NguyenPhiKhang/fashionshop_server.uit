@@ -56,8 +56,26 @@ const ratingStarLoader = new DataLoader(ratingId => {
     return RatingStar.find({ _id: { $in: ratingId } });
 });
 
-const levelCategoriesLoader = new DataLoader(levelId => {
-    return LevelCategories.find({ _id: { $in: levelId } });
+const levelCategoriesLoader = new DataLoader(async levelId => {
+    const levelCategories = await LevelCategories.find({ _id: { $in: levelId } });
+
+    //  const levelCategories = await LevelCategories.aggregate([
+    //     { $match: { _id: { $in: levelId } } },
+    //     { $addFields: { "__sort": { $indexOfArray: [levelId, "$_id"] } } },
+    //     { $sort: { "__sort": 1 } }
+    // ]);
+    // options.sort((a, b) => {
+    //     return (
+    //         optionIds.indexOf(a._id.toString()) - optionIds.indexOf(b._id.toString())
+    //     );
+    // });
+    if (levelCategories.length !== levelId.length) {
+        const arrayOp = await (levelId.map(opId => {
+            return levelCategories.find(oId => oId._id.toString() === opId.toString());
+        }));
+        return arrayOp;
+    }
+    return levelCategories;
 });
 
 const productLoader = new DataLoader(productId => {
@@ -199,7 +217,7 @@ const options = async (optionIds) => {
         // });
         if (options.length !== optionIds.length) {
             const arrayOp = await (optionIds.map(opId => {
-                return options.find(oId => oId.id == opId);
+                return options.find(oId => oId._id.toString() === opId.toString());
             }));
 
             return arrayOp.map(option => {

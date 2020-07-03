@@ -161,12 +161,14 @@ module.exports = {
             throw error;
         }
     },
-    getProductById: async (args)=>{
-        try{
-            const product = await Product.findById(args.id);
-            return transformProduct(product);
-        }catch(error){
+    getProduct: async (args) => {
+        try {
+            const products = (typeof (args.id) !== "undefined") ? await Product.find({ _id: { $in: args.id } }) : await Product.find({});
+            return products.map(product => {
+                return transformProduct(product);
+            })
+        } catch (error) {
             throw error;
         }
-    }
+    },
 }
