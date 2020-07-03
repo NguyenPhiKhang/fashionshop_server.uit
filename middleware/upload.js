@@ -6,6 +6,7 @@ const GridFsStorage = require("multer-gridfs-storage");
 
 const storage = new GridFsStorage({
   url: "mongodb+srv://khangse616:khangse616@cluster0-wpib7.mongodb.net/fashion-shop?retryWrites=true&w=majority",
+  options:{useUnifiedTopology: true},
   file: (req, file) => {
     return new Promise((resolve, reject) => {
       crypto.randomBytes(16, (err, buf) => {
