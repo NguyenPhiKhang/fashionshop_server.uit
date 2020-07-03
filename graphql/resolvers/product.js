@@ -164,9 +164,9 @@ module.exports = {
     getProduct: async (args) => {
         try {
             const products = (typeof (args.id) !== "undefined") ? await Product.find({ _id: { $in: args.id } }) : await Product.find({});
-            return products.map(product => {
-                return transformProduct(product);
-            })
+            return await Promise.all(products.map(async product => {
+                return await transformProduct(product);
+            }));
         } catch (error) {
             throw error;
         }

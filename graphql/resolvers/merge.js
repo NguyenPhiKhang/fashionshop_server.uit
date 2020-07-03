@@ -216,13 +216,14 @@ const options = async (optionIds) => {
         //     );
         // });
         if (options.length !== optionIds.length) {
+            console.log("ok");
             const arrayOp = await (optionIds.map(opId => {
                 return options.find(oId => oId._id.toString() === opId.toString());
             }));
 
-            return arrayOp.map(option => {
-                return transformOption(option);
-            });
+            return await Promise.all(arrayOp.map(async option => {
+                return await transformOption(option);
+            }));
         }
         return options.map(option => {
             return transformOption(option);
@@ -293,11 +294,11 @@ const products = async productIds => {
 const attributeProducts = async attrProdIds => {
     try {
         const attrProds = await AttributeProduct.find({ _id: { $in: attrProdIds } });
-        attrProds.sort((a, b) => {
-            return (
-                attrProdIds.indexOf(a._id.toString()) - attrProdIds.indexOf(b._id.toString())
-            );
-        });
+        // attrProds.sort((a, b) => {
+        //     return (
+        //         attrProdIds.indexOf(a._id.toString()) - attrProdIds.indexOf(b._id.toString())
+        //     );
+        // });
         return await Promise.all(attrProds.map(async attrPro => {
             return await transformAttributeProduct(attrPro);
         }));

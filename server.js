@@ -25,7 +25,7 @@ app.use((req, res, next) => {
 const uri = `mongodb+srv://khangse616:khangse616@cluster0-wpib7.mongodb.net/fashion-shop?retryWrites=true&w=majority`;
 var gfs;
 
-mongoose.connect(uri, {useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify:false});
+mongoose.connect(uri, {useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify:false,});
 mongoose.connection.once("open", ()=>{
     gfs = new mongoose.mongo.GridFSBucket(mongoose.connection.db, {
         bucketName: "photos"
