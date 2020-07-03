@@ -4,6 +4,7 @@ const categoryResolver = require('./category');
 const attributeResolver = require('./attribute');
 const optionResolver = require("./option");
 const productResolver = require("./product");
+const levelCategoriesResolver = require("./levelcategories");
 
 const rootResolver = {
   ...authResolver,
@@ -11,7 +12,8 @@ const rootResolver = {
   ...categoryResolver,
   ...attributeResolver,
   ...optionResolver,
-  ...productResolver
+  ...productResolver,
+  ...levelCategoriesResolver,
 };
 
 module.exports = rootResolver;

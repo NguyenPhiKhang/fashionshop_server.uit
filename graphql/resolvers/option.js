@@ -24,5 +24,21 @@ module.exports = {
         }catch(error){
             throw error;
         }
+    },
+    getAllOption: async ()=>{
+        try {
+            const result = await Option.find({});
+            // result.sort((a, b) => {
+            //     return (
+            //         result.indexOf(a._id.toString()) - result.indexOf(b._id.toString())
+            //     );
+            // });
+            // console.log(result);
+            return await Promise.all(result.map(async op=>{
+                return await transformOption(op._doc);
+            }));
+        } catch (error) {
+            throw error;
+        }
     }
 }

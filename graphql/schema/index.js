@@ -94,15 +94,15 @@ type Review{
 }
 type AttributeProduct{
   _id: ID!
-  attribute_code: Int!
-  product_code: Int!
+  attribute: Attribute!
+  product: Product!
   value: [Option]
 }
 type OptionAmount{
   _id: ID!
-  option_color: Option!
-  option_size: Option!
-  product_code: Product!
+  option_color: ID!
+  option_size: ID!
+  product: Product!
   amount: Int!
 }
 type Person{
@@ -156,11 +156,6 @@ input OptionAmountInput{
   size_id: ID
   amount: Int!
 }
-input AttributeProductInput{
-  attribute_code: Int!
-  product_code: Int!
-  value: [ID]!
-}
 type RootQuery {
     login(email: String!, password: String!): AuthData!
     getPermission: [Permission]!
@@ -169,6 +164,8 @@ type RootQuery {
     getCategoryById(id: ID!, typeOption: String): Category!
     getAllAttribute: [Attribute]!
     getAttributeById(id: ID!): Attribute!
+    getAllOption: [Option]!
+    getProductById(id: ID!): Product!
 }
 type RootMutation {
     createAccount(accountInput: AccountInput): Account
@@ -177,6 +174,7 @@ type RootMutation {
     createAttribute(name: String!): Attribute
     createOption(optionInput: OptionInput): Option
     createProduct(productInput: ProductInput): Product
+    deleteProductInLevelCategories(id: ID!, idProduct: ID!): Boolean
 }
 schema {
     query: RootQuery

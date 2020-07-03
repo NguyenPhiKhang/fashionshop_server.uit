@@ -5,7 +5,7 @@ const genCode = require("./sysGenId");
 module.exports = {
     getAttributeById: async (args)=>{
         try {
-            const result = await Attribute.findById(args.id);
+            const result = await Attribute.findById(args.id).exec();
             return await transformAttribute(result);
         } catch (err) {
             throw err;
@@ -14,9 +14,15 @@ module.exports = {
     getAllAttribute: async () =>{
         try{
             const result = await Attribute.find({});
-            return result.map(async attr=>{
+            // result.sort((a, b) => {
+            //     return (
+            //         result.indexOf(a._id.toString()) - result.indexOf(b._id.toString())
+            //     );
+            // });
+            // console.log(result);
+            return await Promise.all(result.map(async attr=>{
                 return await transformAttribute(attr);
-            });
+            }));
 
         }catch(error){
             throw error;

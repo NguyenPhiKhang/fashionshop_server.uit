@@ -6,6 +6,7 @@ const OptionAmount = require("../../models/option_amount");
 const Atrribute = require("../../models/attribute");
 const { CeilPrice } = require("../../helpers/ceil_price");
 const genCode = require("./sysGenId");
+const { transformProduct } = require('./merge');
 
 module.exports = {
     createProduct: async (args) => {
@@ -157,6 +158,14 @@ module.exports = {
             // console.log(b);
             // return 1;
         } catch (error) {
+            throw error;
+        }
+    },
+    getProductById: async (args)=>{
+        try{
+            const product = await Product.findById(args.id);
+            return transformProduct(product);
+        }catch(error){
             throw error;
         }
     }
