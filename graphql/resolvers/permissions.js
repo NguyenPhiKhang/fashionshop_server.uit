@@ -20,18 +20,18 @@ module.exports = {
   getPermission: async () => {
     try {
       const result = await Permission.find({});
-      return result.map(permission=>{
-        return {...permission._doc}
+      return result.map(permission => {
+        return { ...permission._doc }
       })
     } catch (err) {
       throw err;
     }
   },
-  getIdPermission: async (args)=>{
-    try{
-      const result = await Permission.findOne({name: args.name});
+  getIdPermission: async (args) => {
+    try {
+      const result = await Permission.findOne({ name: args.name });
       return result._id;
-    }catch(err){
+    } catch (err) {
       throw err;
     }
   }

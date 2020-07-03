@@ -3,7 +3,7 @@ const { transformAttribute } = require("./merge");
 const genCode = require("./sysGenId");
 
 module.exports = {
-    getAttributeById: async (args)=>{
+    getAttributeById: async (args) => {
         try {
             const result = await Attribute.findById(args.id).exec();
             return await transformAttribute(result);
@@ -11,8 +11,8 @@ module.exports = {
             throw err;
         }
     },
-    getAllAttribute: async () =>{
-        try{
+    getAllAttribute: async () => {
+        try {
             const result = await Attribute.find({});
             // result.sort((a, b) => {
             //     return (
@@ -20,16 +20,16 @@ module.exports = {
             //     );
             // });
             // console.log(result);
-            return await Promise.all(result.map(async attr=>{
+            return await Promise.all(result.map(async attr => {
                 return await transformAttribute(attr);
             }));
 
-        }catch(error){
+        } catch (error) {
             throw error;
         }
     },
-    createAttribute: async (args)=>{
-        try{
+    createAttribute: async (args) => {
+        try {
             const code = await genCode("Attribute");
             const attribute = new Attribute({
                 attribute_code: code,
@@ -40,7 +40,7 @@ module.exports = {
                 ...result._doc,
                 _id: result.id
             }
-        }catch(error){
+        } catch (error) {
             throw error;
         }
     }

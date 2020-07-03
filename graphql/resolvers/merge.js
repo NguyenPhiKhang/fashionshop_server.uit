@@ -224,7 +224,6 @@ const options = async (optionIds) => {
                 return transformOption(option);
             });
         }
-
         return options.map(option => {
             return transformOption(option);
         });
@@ -251,7 +250,6 @@ const attributes = async attrIds => {
                 // return ats;
             });
         }
-
         // arrayAttr.sort((a, b) => {
         //     return (
         //         attrIds.indexOf(a._id.toString()) - attrIds.indexOf(b._id.toString())

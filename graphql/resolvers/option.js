@@ -4,8 +4,8 @@ const genCode = require("./sysGenId");
 const { transformOption } = require("./merge");
 
 module.exports = {
-    createOption: async (args)=>{
-        try{
+    createOption: async (args) => {
+        try {
             const code = await genCode("Option");
             const option = new Option({
                 option_code: code,
@@ -15,17 +15,17 @@ module.exports = {
             });
             const result = await option.save();
             const attr_value = await Attribute.findById(result.attribute_id);
-            if(!attr_value){
+            if (!attr_value) {
                 throw new Error("Không tìm thấy thuộc tính");
             }
             attr_value.value.push(option);
             await attr_value.save();
             return transformOption(result);
-        }catch(error){
+        } catch (error) {
             throw error;
         }
     },
-    getAllOption: async ()=>{
+    getAllOption: async () => {
         try {
             const result = await Option.find({});
             // result.sort((a, b) => {
@@ -34,7 +34,7 @@ module.exports = {
             //     );
             // });
             // console.log(result);
-            return await Promise.all(result.map(async op=>{
+            return await Promise.all(result.map(async op => {
                 return await transformOption(op._doc);
             }));
         } catch (error) {
