@@ -33,10 +33,9 @@ module.exports = {
                     amount: opa.amount
                 });
 
-                const checkColor = arrColor.includes(opa.color_id);
-                arrColor.push(checkColor ? null : opa.color_id);
-                const checkSize = arrSize.includes(opa.size_id);
-                arrSize.push(checkSize ? null : opa.size_id);
+
+                if (opa.color_id !== null && arrColor.includes(opa.color_id) === false) arrColor.push(opa.color_id);
+                if (opa.size_id !== null && arrSize.includes(opa.size_id) === false) arrSize.push(opa.size_id);
 
                 const saveOpa = await optionAmount.save();
                 console.log(saveOpa);
@@ -166,14 +165,14 @@ module.exports = {
             let limit = 0;
             let skip = 0;
             //const pageSize = (typeof(args.pageSize)==="undefined"||args.pageSize <= 0)?0:args.pageSize;
-            if(typeof(args.pageNumber)==="number"&&args.pageNumber > 0){
-                skip = (args.pageNumber - 1)*10;
+            if (typeof (args.pageNumber) === "number" && args.pageNumber > 0) {
+                skip = (args.pageNumber - 1) * 10;
                 limit = 10;
             }
-            console.log("skip: "+skip);
-            console.log("limit: "+limit);
-            const products = (typeof (args.id) !== "undefined") ? await Product.find({ _id: { $in: args.id } }).skip(skip).limit(limit) 
-                                                                : await Product.find({}).skip(skip).limit(limit);
+            console.log("skip: " + skip);
+            console.log("limit: " + limit);
+            const products = (typeof (args.id) !== "undefined") ? await Product.find({ _id: { $in: args.id } }).skip(skip).limit(limit)
+                : await Product.find({}).skip(skip).limit(limit);
             return await Promise.all(products.map(async product => {
                 return await transformProduct(product);
             }));
