@@ -10,7 +10,7 @@ const uploadFiles = async (req, res) => {
         throw new Error("You must select at least 1 file.");
       }
   
-      return res.send(`Files have been uploaded.`);
+      return `Files have been uploaded.`;
     } catch (error) {
       console.log(error);
     }

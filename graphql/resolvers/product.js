@@ -163,7 +163,16 @@ module.exports = {
     },
     getProduct: async (args) => {
         try {
-            const products = (typeof (args.id) !== "undefined") ? await Product.find({ _id: { $in: args.id } }) : await Product.find({});
+            let limit = 0;
+            let skip = 0;
+            //const pageSize = (typeof(args.pageSize)==="undefined"||args.pageSize <= 0)?0:args.pageSize;
+            if(typeof(args.pageNumber)==="number"&&args.pageNumber > 0){
+                skip = (args.pageNumber - 1)*10;
+                limit = 10;
+            }
+            console.log("skip: "+skip);
+            console.log("limit: "+limit);
+            const products = (typeof (args.id) !== "undefined") ? await Product.find({ _id: { $in: args.id } }).skip(skip).limit(limit) : await Product.find({}).skip(skip).limit(limit);
             return await Promise.all(products.map(async product => {
                 return await transformProduct(product);
             }));
