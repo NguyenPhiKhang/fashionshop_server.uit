@@ -73,7 +73,7 @@ module.exports = {
                 total_review: 0,
                 order_count: 0,
                 weight: args.productInput.weight,
-                short_description: args.productInput.short_description,
+                short_description: "",
                 rating_star: null,
                 stock_status: true,
                 review: [],
@@ -172,7 +172,8 @@ module.exports = {
             }
             console.log("skip: "+skip);
             console.log("limit: "+limit);
-            const products = (typeof (args.id) !== "undefined") ? await Product.find({ _id: { $in: args.id } }).skip(skip).limit(limit) : await Product.find({}).skip(skip).limit(limit);
+            const products = (typeof (args.id) !== "undefined") ? await Product.find({ _id: { $in: args.id } }).skip(skip).limit(limit) 
+                                                                : await Product.find({}).skip(skip).limit(limit);
             return await Promise.all(products.map(async product => {
                 return await transformProduct(product);
             }));

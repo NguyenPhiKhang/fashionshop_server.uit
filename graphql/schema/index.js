@@ -146,7 +146,6 @@ input ProductInput{
   promotion_percent: Float
   description: String!
   weight: Float
-  short_description: String
   is_freeship: Boolean
   category_id: String!
   option_amount: [OptionAmountInput]!
