@@ -42,7 +42,7 @@ module.exports = {
                 return saveOpa;
             }));
 
-            const attrValues = (arrColor.length === 0 && arrSize.length !== 0) ? await Atrribute.findOne({ attribute_code: 2 }) : (arrColor.length !== 0 && arrSize.length === 0) ? await Atrribute.findOne({ attribute_code: 1 }) : await Atrribute.find({});
+            const attrValues = (arrColor.length === 0 && arrSize.length !== 0) ? await Atrribute.findOne({ attribute_code: 2 }) : (arrColor.length !== 0 && arrSize.length === 0) ? await Atrribute.findOne({ attribute_code: 1 }) : (arrColor.length !== 0 && arrSize.length !== 0)?await Atrribute.find({}):[];
 
             const attrProduct = await Promise.all(attrValues.map(async f => {
                 const x = (f._doc.attribute_code === 1) ? await f._doc.value.filter(c => arrColor.includes(c.toString())) :
