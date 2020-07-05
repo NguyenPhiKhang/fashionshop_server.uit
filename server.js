@@ -7,6 +7,7 @@ const graphQlSchema = require('./graphql/schema/index');
 const graphQlResolvers = require('./graphql/resolvers/index');
 const isAuth = require("./middleware/is-auth");
 const uploadController = require("./controllers/upload");
+const GridFSClass = require('./models/singletonGridFS');
 
 const app = express();
 
@@ -28,9 +29,7 @@ var gfs;
 
 mongoose.connect(uri, {useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify:false,});
 mongoose.connection.once("open", ()=>{
-    gfs = new mongoose.mongo.GridFSBucket(mongoose.connection.db, {
-        bucketName: "photos"
-      });
+    const gfs = GridFSClass.getInstance();
     console.log("connected to database");
 });
 

@@ -3,7 +3,7 @@ const upload = require("../middleware/upload");
 const uploadFiles = async (req, res) => {
   try {
     await upload(req, res);
-    console.log(req.files);
+    // console.log(req.files);
 
     if (req.files.length <= 0) {
       res.send({ success: false, message: `You must select at least 1 file.`, filenames: [] });

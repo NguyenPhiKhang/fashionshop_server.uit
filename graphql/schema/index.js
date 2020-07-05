@@ -174,6 +174,7 @@ type RootMutation {
     createOption(optionInput: OptionInput): Option
     createProduct(productInput: ProductInput): Product
     deleteProductInLevelCategories(id: ID!, idProduct: ID!): Boolean
+    deleteProduct(id: ID!): Boolean
 }
 schema {
     query: RootQuery

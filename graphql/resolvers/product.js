@@ -4,9 +4,12 @@ const LevelCategories = require("../../models/level_categories");
 const AttributeProduct = require("../../models/attribute_product");
 const OptionAmount = require("../../models/option_amount");
 const Atrribute = require("../../models/attribute");
+const RatingStar = require("../../models/rating_star");
 const { CeilPrice } = require("../../helpers/ceil_price");
 const genCode = require("./sysGenId");
 const { transformProduct } = require('./merge');
+const { DeleteImage, DeleteReview } = require('../../helpers/util');
+const { deleteProductInLevelCategories } = require('./levelcategories');
 
 module.exports = {
     createProduct: async (args) => {
@@ -14,6 +17,7 @@ module.exports = {
             const gencode = await genCode("Product");
             const cats = await (args.productInput.category_id).split('/');
             let levelcategories = await LevelCategories.findOne({ category_level1_id: cats[0], category_level2_id: cats[1], category_level3_id: cats[2] });
+            // console.log(levelcategories);
             if (levelcategories === null) {
                 const levelcategory = new LevelCategories({
                     category_level1_id: cats[0],
@@ -21,6 +25,7 @@ module.exports = {
                     category_level3_id: cats[2]
                 });
                 levelcategories = await levelcategory.save();
+                // console.log(levelcategories);
             }
 
             let arrColor = [];
@@ -38,12 +43,16 @@ module.exports = {
                 if (opa.size_id !== null && arrSize.includes(opa.size_id) === false) arrSize.push(opa.size_id);
 
                 const saveOpa = await optionAmount.save();
-                console.log(saveOpa);
+                // console.log(saveOpa);
                 return saveOpa;
             }));
 
-            const attrValues = (arrColor.length === 0 && arrSize.length !== 0) ? await Atrribute.findOne({ attribute_code: 2 }) : (arrColor.length !== 0 && arrSize.length === 0) ? await Atrribute.findOne({ attribute_code: 1 }) : (arrColor.length !== 0 && arrSize.length !== 0)?await Atrribute.find({}):[];
+            // console.log("arr OptionAmount");
+            // console.log(arrOptionAmount);
 
+            const attrValues = (arrColor.length === 0 && arrSize.length !== 0) ? await Atrribute.findOne({ attribute_code: 2 }) : (arrColor.length !== 0 && arrSize.length === 0) ? await Atrribute.findOne({ attribute_code: 1 }) : (arrColor.length !== 0 && arrSize.length !== 0)?await Atrribute.find({}):[];
+            // console.log("atrr Values");
+            // console.log(attrValues);
             const attrProduct = await Promise.all(attrValues.map(async f => {
                 const x = (f._doc.attribute_code === 1) ? await f._doc.value.filter(c => arrColor.includes(c.toString())) :
                     await f._doc.value.filter(c => arrSize.includes(c.toString()));
@@ -56,15 +65,21 @@ module.exports = {
                 });
 
                 const saveAttrProd = await attrProd.save();
-                console.log(saveAttrProd);
+                // console.log(saveAttrProd);
                 return saveAttrProd;
             }));
+
+            // console.log("attr Product");
+            // console.log(attrProduct);
+
+            // console.log("lietke:  ");
+
 
             const product = new Product({
                 name: args.productInput.name,
                 product_code: gencode,
-                images: [],
-                img_url: null,
+                images: args.productInput.images,
+                img_url: args.productInput.images.length>0?args.productInput.images[0]:"",
                 price: args.productInput.price,
                 promotion_percent: args.productInput.promotion_percent,
                 final_price: CeilPrice(args.productInput.price, args.productInput.promotion_percent),
@@ -118,6 +133,7 @@ module.exports = {
 
             //await product.attribute.push(...attributeInput);
             const saveProduct = await product.save();
+            // console.log(saveProduct);
 
             await levelcategories.products.push(saveProduct);
             await levelcategories.save();
@@ -180,4 +196,19 @@ module.exports = {
             throw error;
         }
     },
+    deleteProduct: async (args)=>{
+        try {
+            const prodc = await Product.findById(args.id);
+            await Product.deleteOne({_id: args.id});
+            await DeleteImage(prodc.images);
+            if(prodc.rating_star !== null) await RatingStar.deleteOne({_id: prodc.rating_star});
+            if(prodc.attribute.length >0) await AttributeProduct.deleteMany({_id: {$in: prodc.attribute}});
+            if(prodc.option_amount.length>0) await OptionAmount.deleteMany({_id: {$in: prodc.option_amount}});
+            await DeleteReview(prodc.review);
+            await deleteProductInLevelCategories({id: prodc.categories, idProduct: prodc._id});
+            return true;
+        } catch (error) {
+            throw error;
+        }
+    }
 }
