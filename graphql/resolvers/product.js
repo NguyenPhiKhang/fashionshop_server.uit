@@ -155,7 +155,7 @@ module.exports = {
             }
             const products = (typeof (args.id) !== "undefined")
                 ? await Product.find({ _id: { $in: args.id } }).skip(skip).limit(limit)
-                : await Product.find({}).skip(skip).limit(limit);
+                : (args.sort===-1||args.sort===1)?await Product.find({}).sort({final_price: args.sort}).skip(skip).limit(limit):await Product.find({}).skip(skip).limit(limit);
             return await Promise.all(products.map(async product => {
                 return await transformProduct(product);
             }));

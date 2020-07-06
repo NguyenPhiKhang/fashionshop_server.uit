@@ -118,6 +118,13 @@ type Person{
   createdAt: String!
   updatedAt: String!
 }
+type Order{
+  _id: ID!
+  product_id: ID!
+  option_amount_id: ID!
+  amount: Int
+  price_order: Float
+}
 input AccountInput {
   name: String!
   email: String!
@@ -157,6 +164,11 @@ input OptionAmountInput{
   size_id: ID
   amount: Int!
 }
+input CartInput{
+  product_id: ID!
+  option_amount_id: ID!
+  amount: Int
+}
 type RootQuery {
     login(email: String!, password: String!): AuthData!
     getPermission: [Permission]!
@@ -166,10 +178,10 @@ type RootQuery {
     getAllAttribute: [Attribute]!
     getAttributeById(id: ID!): Attribute!
     getAllOption: [Option]!
-    getProduct(id: ID, pageNumber: Int): [Product]!
+    getProduct(id: ID, pageNumber: Int, sort: Int): [Product]!
     getProductByCategory(level_code: Int, pageNumber: Int, colors: [ID], sizes: [ID], price_min: Float, price_max: Float): [Product]!
     searchProduct(text: String!, pageNumber: Int!): [Product]!
-    renderOrder(product_id: ID!, text: String): Product
+    renderCart(cartInput: [CartInput]): [Order]!
 }
 type RootMutation {
     createAccount(accountInput: AccountInput): Account
