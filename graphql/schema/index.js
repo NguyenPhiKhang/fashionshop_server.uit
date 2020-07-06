@@ -168,6 +168,8 @@ type RootQuery {
     getAllOption: [Option]!
     getProduct(id: ID, pageNumber: Int): [Product]!
     getProductByCategory(level_code: Int, pageNumber: Int, colors: [ID], sizes: [ID], price_min: Float, price_max: Float): [Product]!
+    searchProduct(text: String!, pageNumber: Int!): [Product]!
+    renderOrder(product_id: ID!, text: String): Product
 }
 type RootMutation {
     createAccount(accountInput: AccountInput): Account

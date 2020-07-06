@@ -22,12 +22,23 @@ const DeleteReview = async (reviews) => {
 
 const findProductInAttribute = async (options, attribute) => {
     if (options.length > 0) {
-        const a = await AttributeProduct.find({ $and: [{ attribute_code: attribute }, { value: { $in: options } }] }, { product_code: 1, _id: 0 }).then(value=>{
-            return value.map(a=>a.product_code);
+        const a = await AttributeProduct.find({ $and: [{ attribute_code: attribute }, { value: { $in: options } }] }, { product_code: 1, _id: 0 }).then(value => {
+            return value.map(a => a.product_code);
         });
         return a;
     }
     return [];
 }
 
-module.exports = { DeleteImage, DeleteReview, findProductInAttribute }
+const SkipLimit = async (pageNumber) => {
+    let limit = 0;
+    let skip = 0;
+    if (typeof (pageNumber) === "number" && pageNumber > 0) {
+        skip = (pageNumber - 1) * 10;
+        limit = 10;
+    }
+
+    return {limit, skip};
+}
+
+module.exports = { DeleteImage, DeleteReview, findProductInAttribute, SkipLimit }

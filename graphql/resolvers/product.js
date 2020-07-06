@@ -8,7 +8,7 @@ const RatingStar = require("../../models/rating_star");
 const { CeilPrice } = require("../../helpers/ceil_price");
 const genCode = require("./sysGenId");
 const { transformProduct } = require('./merge');
-const { DeleteImage, DeleteReview, findProductInAttribute } = require('../../helpers/util');
+const { DeleteImage, DeleteReview, findProductInAttribute, SkipLimit } = require('../../helpers/util');
 const { deleteProductInLevelCategories } = require('./levelcategories');
 const { product } = require('ramda');
 
@@ -51,7 +51,7 @@ module.exports = {
             // console.log("arr OptionAmount");
             // console.log(arrOptionAmount);
 
-            const attrValues = (arrColor.length === 0 && arrSize.length !== 0) ? await Atrribute.findOne({ attribute_code: 2 }) : (arrColor.length !== 0 && arrSize.length === 0) ? await Atrribute.findOne({ attribute_code: 1 }) : (arrColor.length !== 0 && arrSize.length !== 0) ? await Atrribute.find({}) : [];
+            const attrValues = (arrColor.length === 0 && arrSize.length !== 0) ? await Atrribute.find({ attribute_code: 2 }) : (arrColor.length !== 0 && arrSize.length === 0) ? await Atrribute.find({ attribute_code: 1 }) : (arrColor.length !== 0 && arrSize.length !== 0) ? await Atrribute.find({}) : [];
             // console.log("atrr Values");
             // console.log(attrValues);
             const attrProduct = await Promise.all(attrValues.map(async f => {
@@ -190,7 +190,7 @@ module.exports = {
             const levelCatId = await LevelCategories.find({
                 $or: [{ category_level1_id: args.level_code },
                 { category_level2_id: args.level_code }, { category_level3_id: args.level_code }]
-            }, { _id: 1 }).then(value=>{
+            }, { _id: 1 }).then(value => {
                 return value.map(a => a._id);
             });
 
@@ -250,6 +250,19 @@ module.exports = {
             // });
 
             // return a;
+        } catch (error) {
+            throw error;
+        }
+    },
+    searchProduct: async (args) => {
+        try {
+            const newText = await args.text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d")
+                .replace(/Đ/g, "D");
+            const page = await SkipLimit(args.pageNumber);
+            const products = await Product.find({$text: {$search: newText}}).skip(page.skip).limit(page.limit);
+            return await Promise.all(products.map(async product => {
+                return await transformProduct(product);
+            }));
         } catch (error) {
             throw error;
         }
