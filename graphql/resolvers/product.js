@@ -8,8 +8,9 @@ const RatingStar = require("../../models/rating_star");
 const { CeilPrice } = require("../../helpers/ceil_price");
 const genCode = require("./sysGenId");
 const { transformProduct } = require('./merge');
-const { DeleteImage, DeleteReview } = require('../../helpers/util');
+const { DeleteImage, DeleteReview, findProductInAttribute } = require('../../helpers/util');
 const { deleteProductInLevelCategories } = require('./levelcategories');
+const { product } = require('ramda');
 
 module.exports = {
     createProduct: async (args) => {
@@ -50,7 +51,7 @@ module.exports = {
             // console.log("arr OptionAmount");
             // console.log(arrOptionAmount);
 
-            const attrValues = (arrColor.length === 0 && arrSize.length !== 0) ? await Atrribute.findOne({ attribute_code: 2 }) : (arrColor.length !== 0 && arrSize.length === 0) ? await Atrribute.findOne({ attribute_code: 1 }) : (arrColor.length !== 0 && arrSize.length !== 0)?await Atrribute.find({}):[];
+            const attrValues = (arrColor.length === 0 && arrSize.length !== 0) ? await Atrribute.findOne({ attribute_code: 2 }) : (arrColor.length !== 0 && arrSize.length === 0) ? await Atrribute.findOne({ attribute_code: 1 }) : (arrColor.length !== 0 && arrSize.length !== 0) ? await Atrribute.find({}) : [];
             // console.log("atrr Values");
             // console.log(attrValues);
             const attrProduct = await Promise.all(attrValues.map(async f => {
@@ -79,7 +80,7 @@ module.exports = {
                 name: args.productInput.name,
                 product_code: gencode,
                 images: args.productInput.images,
-                img_url: args.productInput.images.length>0?args.productInput.images[0]:"",
+                img_url: args.productInput.images.length > 0 ? args.productInput.images[0] : "",
                 price: args.productInput.price,
                 promotion_percent: args.productInput.promotion_percent,
                 final_price: CeilPrice(args.productInput.price, args.productInput.promotion_percent),
@@ -99,39 +100,6 @@ module.exports = {
                 record_status: true
             });
 
-            // let attributeInput = await Promise.all(args.productInput.attribute.map(async attr => {
-            //     //const a = await Attribute_Option.findOne({attribute_code: attr.attribute_code, product_code: gencode});
-
-            //     const gencodeAttrOpt = await genCode("Attribute_Option");
-
-            //     let attrOption = new Attribute_Option({
-            //         attr_opt_code: gencodeAttrOpt,
-            //         attribute_code: attr.attribute_code,
-            //         product_code: gencode,
-            //         value: []
-            //     });
-
-            //     //const saveAttrOption = await attrOption.save();
-
-            //     let mapOptions = await Promise.all(attr.options.map(async op => {
-            //         const opt = new Option_Amount({
-            //             option_code: op.option_code,
-            //             amount: op.amount,
-            //             attribute_option_code: gencodeAttrOpt
-            //         });
-
-            //         return await opt.save();
-            //         // await saveAttrOption._doc.value.push(saveOpt);
-            //     }));
-
-            //     console.log(mapOptions);
-
-            //     attrOption.value.push(...mapOptions);
-
-            //     return attrOption.save();
-            // }));
-
-            //await product.attribute.push(...attributeInput);
             const saveProduct = await product.save();
             // console.log(saveProduct);
 
@@ -185,9 +153,8 @@ module.exports = {
                 skip = (args.pageNumber - 1) * 10;
                 limit = 10;
             }
-            console.log("skip: " + skip);
-            console.log("limit: " + limit);
-            const products = (typeof (args.id) !== "undefined") ? await Product.find({ _id: { $in: args.id } }).skip(skip).limit(limit)
+            const products = (typeof (args.id) !== "undefined")
+                ? await Product.find({ _id: { $in: args.id } }).skip(skip).limit(limit)
                 : await Product.find({}).skip(skip).limit(limit);
             return await Promise.all(products.map(async product => {
                 return await transformProduct(product);
@@ -196,17 +163,93 @@ module.exports = {
             throw error;
         }
     },
-    deleteProduct: async (args)=>{
+    deleteProduct: async (args) => {
         try {
             const prodc = await Product.findById(args.id);
-            await Product.deleteOne({_id: args.id});
+            await Product.deleteOne({ _id: args.id });
             await DeleteImage(prodc.images);
-            if(prodc.rating_star !== null) await RatingStar.deleteOne({_id: prodc.rating_star});
-            if(prodc.attribute.length >0) await AttributeProduct.deleteMany({_id: {$in: prodc.attribute}});
-            if(prodc.option_amount.length>0) await OptionAmount.deleteMany({_id: {$in: prodc.option_amount}});
+            if (prodc.rating_star !== null) await RatingStar.deleteOne({ _id: prodc.rating_star });
+            if (prodc.attribute.length > 0) await AttributeProduct.deleteMany({ _id: { $in: prodc.attribute } });
+            if (prodc.option_amount.length > 0) await OptionAmount.deleteMany({ _id: { $in: prodc.option_amount } });
             await DeleteReview(prodc.review);
-            await deleteProductInLevelCategories({id: prodc.categories, idProduct: prodc._id});
+            await deleteProductInLevelCategories({ id: prodc.categories, idProduct: prodc._id });
             return true;
+        } catch (error) {
+            throw error;
+        }
+    },
+    getProductByCategory: async (args) => {
+        try {
+            let limit = 0;
+            let skip = 0;
+            if (typeof (args.pageNumber) === "number" && args.pageNumber > 0) {
+                skip = (args.pageNumber - 1) * 10;
+                limit = 10;
+            }
+
+            const levelCatId = await LevelCategories.find({
+                $or: [{ category_level1_id: args.level_code },
+                { category_level2_id: args.level_code }, { category_level3_id: args.level_code }]
+            }, { _id: 1 }).then(value=>{
+                return value.map(a => a._id);
+            });
+
+            const colors = await findProductInAttribute(args.colors, 1);
+            const sizes = await findProductInAttribute(args.sizes, 2);
+
+            let products = [];
+
+            if (args.colors.length === 0 && args.sizes.length === 0 && args.price_max === 0) {
+                products = await Product.find({ categories: { $in: levelCatId } }).skip(skip).limit(limit);
+            }
+            else {
+                if ((colors.length > 0 || (colors.length === 0 && args.colors.length > 0))
+                    && (sizes.length > 0 || (sizes.length === 0 && args.sizes.length > 0)) && args.price_max > 0) {
+                    products = await Product.find({
+                        $and: [{ categories: { $in: levelCatId } },
+                        { product_code: { $in: colors } },
+                        { prodcut_code: { $in: sizes } },
+                        { final_price: { $gte: args.price_min, $lte: args.price_max } }]
+                    }).skip(skip).limit(limit);
+                } else {
+                    if (colors.length > 0 && sizes.length === 0 && args.sizes.length === 0 && args.price_max > 0) {
+                        products = await Product.find({
+                            $and: [{ categories: { $in: levelCatId } },
+                            { product_code: { $in: colors } },
+                            { final_price: { $gte: args.price_min, $lte: args.price_max } }]
+                        }).skip(skip).limit(limit);
+                    }
+                    else {
+                        if (colors.length === 0 && sizes.length > 0 && args.colors.length === 0 && args.price_max > 0) {
+                            products = await Product.find({
+                                $and: [{ categories: { $in: levelCatId } },
+                                { prodcut_code: { $in: sizes } },
+                                { final_price: { $gte: args.price_min, $lte: args.price_max } }]
+                            }).skip(skip).limit(limit);
+                        }
+                        else {
+                            if (colors.length === 0 && args.colors.length === 0 && sizes.length === 0 && args.sizes.length === 0 && args.price_max > 0) {
+                                products = await Product.find({
+                                    $and: [{ categories: { $in: levelCatId } },
+                                    { final_price: { $gte: args.price_min, $lte: args.price_max } }]
+                                }).skip(skip).limit(limit);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return await Promise.all(products.map(async product => {
+                return await transformProduct(product);
+            }));
+            // const a = await Product.find({ product_code: { $exists: true } });
+            // a.forEach(async function (x) {
+            //     console.log(typeof(x.product_code))
+            //     x.product_code = new Number(x.product_code); // convert field to string
+            //     await x.save();
+            // });
+
+            // return a;
         } catch (error) {
             throw error;
         }

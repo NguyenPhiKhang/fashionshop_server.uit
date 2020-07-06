@@ -17,7 +17,8 @@ const categorySchema = new Schema(
         parent_id: {
             type: String
         },
-        image: String
+        image: String,
+        type_size: String
     }
 );
 

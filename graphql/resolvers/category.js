@@ -45,12 +45,23 @@ module.exports = {
             icon: args.categoryInput.icon,
             level_cat: args.categoryInput.level_cat,
             parent_id: args.categoryInput.parent_id,
-            image: args.categoryInput.image
+            image: args.categoryInput.image,
+            type_size: args.categoryInput.type_size
         });
         const result = await category.save();
 
         if (args.categoryInput.parent_id)
             return transformCategory(result);
         else return result;
-    }
+    },
+    // updateTypeSizeCat: async (args) =>{
+    //     try {
+    //         await Category.updateOne(
+    //             {category_code: args.id},
+    //             {$set: {type_size: args.size}});
+    //         return true;
+    //     } catch (error) {
+    //         throw error;
+    //     }
+    // }
 }

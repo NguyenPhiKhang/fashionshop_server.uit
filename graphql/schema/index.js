@@ -25,6 +25,7 @@ type Category{
   name: String!
   icon: String
   image: String
+  type_size: String
   level_cat: Int!
   parent: Category
   subCat: [Category]
@@ -133,6 +134,7 @@ input CategoryInput{
   image: String
   level_cat: Int!
   parent_id: String
+  type_size: String
 }
 input OptionInput{
   name: String!
@@ -165,6 +167,7 @@ type RootQuery {
     getAttributeById(id: ID!): Attribute!
     getAllOption: [Option]!
     getProduct(id: ID, pageNumber: Int): [Product]!
+    getProductByCategory(level_code: Int, pageNumber: Int, colors: [ID], sizes: [ID], price_min: Float, price_max: Float): [Product]!
 }
 type RootMutation {
     createAccount(accountInput: AccountInput): Account
@@ -175,6 +178,7 @@ type RootMutation {
     createProduct(productInput: ProductInput): Product
     deleteProductInLevelCategories(id: ID!, idProduct: ID!): Boolean
     deleteProduct(id: ID!): Boolean
+    updateTypeSizeCat(id: Int, size: String): Boolean
 }
 schema {
     query: RootQuery
