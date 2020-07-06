@@ -18,8 +18,7 @@ const orderSchema = new Schema({
         require: true
     },
     price_order: {
-        type: Number,
-        require: true
+        type: Number
     },
 });
 

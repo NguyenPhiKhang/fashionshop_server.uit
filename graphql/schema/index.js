@@ -106,6 +106,13 @@ type OptionAmount{
   product: Product!
   amount: Int!
 }
+type OptionAmountCart{
+  _id: ID!
+  option_color: Option!
+  option_size: Option!
+  product: Product!
+  amount: Int!
+}
 type Person{
   _id: ID!
   name: String!
@@ -120,8 +127,8 @@ type Person{
 }
 type Order{
   _id: ID!
-  product_id: ID!
-  option_amount_id: ID!
+  product: Product!
+  option_amount: OptionAmountCart!
   amount: Int
   price_order: Float
 }
@@ -178,7 +185,7 @@ type RootQuery {
     getAllAttribute: [Attribute]!
     getAttributeById(id: ID!): Attribute!
     getAllOption: [Option]!
-    getProduct(id: ID, pageNumber: Int, sort: Int): [Product]!
+    getProduct(id: ID, pageNumber: Int, sort: Int, product_ids: [ID]): [Product]!
     getProductByCategory(level_code: Int, pageNumber: Int, colors: [ID], sizes: [ID], price_min: Float, price_max: Float): [Product]!
     searchProduct(text: String!, pageNumber: Int!): [Product]!
     renderCart(cartInput: [CartInput]): [Order]!

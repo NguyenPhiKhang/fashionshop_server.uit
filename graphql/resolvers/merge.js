@@ -91,6 +91,10 @@ const optionAmountLoader = new DataLoader(opAmountIds => {
     return optionAmounts(opAmountIds);
 });
 
+const optionAmountCartLoader = new DataLoader(opAmountIds => {
+    return optionAmountsCart(opAmountIds);
+});
+
 const categoryBind = async (parent_id) => {
     try {
         if (!parent_id)
@@ -171,6 +175,7 @@ const LevelCategoriesBind = async (levelId) => {
 const SingleProduct = async productId => {
     try {
         const product = await productLoader.load(productId);
+        console.log(product);
         return product;
     } catch (error) {
         throw error;
@@ -190,6 +195,15 @@ const SingleOption = async opId => {
     try {
         const op = await optionLoader.load(opId);
         return op;
+    } catch (error) {
+        throw error;
+    }
+}
+
+const SingleOptionAmount = async opAmountId => {
+    try {
+        const opAmount = await optionAmountCartLoader.load(opAmountId);
+        return opAmount;
     } catch (error) {
         throw error;
     }
@@ -268,7 +282,7 @@ const attributes = async attrIds => {
 const products = async productIds => {
     try {
         let prods = [];
-        if (typeof (productIds[0]) === "number") {
+        if (typeof (productIds[0]) === "number" || typeof(productIds) === "number") {
             prods = await Product.find({ product_code: { $in: productIds } });
         } else {
             // await productIds.map(async ddd=>{
@@ -318,6 +332,32 @@ const optionAmounts = async opAmountIds => {
         // });
         return await Promise.all(optionAmounts.map(async opAmount => {
             return await transformOptionAmount(opAmount);
+        }));
+    } catch (error) {
+        throw error;
+    }
+}
+
+const optionAmountsCart = async opAmountIds => {
+    try {
+        const optionAmounts = await OptionAmount.find({ _id: { $in: opAmountIds } });
+
+        // optionAmounts.sort((a, b) => {
+        //     return (
+        //         opAmountIds.indexOf(a._id.toString()) - opAmountIds.indexOf(b._id.toString())
+        //     );
+        // });
+        console.log(optionAmounts);
+        return await Promise.all(optionAmounts.map(async opAmount => {
+            // const a = opAmount._doc.product_code;
+            return await
+                {
+                    ...opAmount._doc,
+                    _id: opAmount.id,
+                    option_color: SingleOption.bind(this, opAmount._doc.option_color),
+                    option_size: SingleOption.bind(this, opAmount._doc.option_size),
+                    product: SingleProduct.bind(this, opAmount._doc.product_code)
+                };
         }));
     } catch (error) {
         throw error;
@@ -447,6 +487,15 @@ const transformOptionAmount = opAmount => {
     }
 }
 
+const transformOrder = order => {
+    return {
+        ...order._doc,
+        _id: order.id,
+        product: SingleProduct.bind(this, order._doc.product_id),
+        option_amount: SingleOptionAmount.bind(this, order._doc.option_amount_id)
+    }
+}
+
 module.exports = {
     transformCategory: transformCategory,
     transformSubCategory: transformSubCategory,
@@ -454,5 +503,6 @@ module.exports = {
     transformAttribute: transformAttribute,
     transformAccount: transformAccount,
     transformPerson: transformPerson,
-    transformProduct: transformProduct
+    transformProduct: transformProduct,
+    transformOrder: transformOrder
 }

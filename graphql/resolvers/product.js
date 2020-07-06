@@ -146,16 +146,22 @@ module.exports = {
     },
     getProduct: async (args) => {
         try {
-            let limit = 0;
-            let skip = 0;
-            //const pageSize = (typeof(args.pageSize)==="undefined"||args.pageSize <= 0)?0:args.pageSize;
-            if (typeof (args.pageNumber) === "number" && args.pageNumber > 0) {
-                skip = (args.pageNumber - 1) * 10;
-                limit = 10;
+            var products = [];
+            if (args.product_ids.length > 0) {
+                products = await Product.find({ _id: { $in: args.product_ids } });
+            } else {
+                let limit = 0;
+                let skip = 0;
+                //const pageSize = (typeof(args.pageSize)==="undefined"||args.pageSize <= 0)?0:args.pageSize;
+                if (typeof (args.pageNumber) === "number" && args.pageNumber > 0) {
+                    skip = (args.pageNumber - 1) * 10;
+                    limit = 10;
+                }
+                products = (typeof (args.id) !== "undefined")
+                    ? await Product.find({ _id: { $in: args.id } }).skip(skip).limit(limit)
+                    : (args.sort === -1 || args.sort === 1) ? await Product.find({}).sort({ final_price: args.sort }).skip(skip).limit(limit) : await Product.find({}).skip(skip).limit(limit);
             }
-            const products = (typeof (args.id) !== "undefined")
-                ? await Product.find({ _id: { $in: args.id } }).skip(skip).limit(limit)
-                : (args.sort===-1||args.sort===1)?await Product.find({}).sort({final_price: args.sort}).skip(skip).limit(limit):await Product.find({}).skip(skip).limit(limit);
+
             return await Promise.all(products.map(async product => {
                 return await transformProduct(product);
             }));
@@ -165,6 +171,19 @@ module.exports = {
     },
     deleteProduct: async (args) => {
         try {
+            // const producsNo = await Product.find({ images: [] });
+            // console.log(producsNo.length);
+            // await Promise.all(producsNo.map(async prodc => {
+            //     // const prodc = await Product.findById(args.id);
+            //     console.log(prod._id);
+            //     // await Product.deleteOne({ _id: prodc._id });
+            //     // // await DeleteImage(prodc.images);
+            //     // if (prodc.rating_star !== null) await RatingStar.deleteOne({ _id: prodc.rating_star });
+            //     // if (prodc.attribute.length > 0) await AttributeProduct.deleteMany({ _id: { $in: prodc.attribute } });
+            //     // if (prodc.option_amount.length > 0) await OptionAmount.deleteMany({ _id: { $in: prodc.option_amount } });
+            //     // await DeleteReview(prodc.review);
+            //     // await deleteProductInLevelCategories({ id: prodc.categories, idProduct: prodc._id });
+            // }))
             const prodc = await Product.findById(args.id);
             await Product.deleteOne({ _id: args.id });
             await DeleteImage(prodc.images);
@@ -259,7 +278,7 @@ module.exports = {
             const newText = await args.text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d")
                 .replace(/Đ/g, "D");
             const page = await SkipLimit(args.pageNumber);
-            const products = await Product.find({$text: {$search: newText}}).skip(page.skip).limit(page.limit);
+            const products = await Product.find({ $text: { $search: newText } }).skip(page.skip).limit(page.limit);
             return await Promise.all(products.map(async product => {
                 return await transformProduct(product);
             }));
