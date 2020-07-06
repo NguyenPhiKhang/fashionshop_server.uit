@@ -29,7 +29,7 @@ var gfs;
 
 mongoose.connect(uri, {useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify:false,});
 mongoose.connection.once("open", ()=>{
-    const gfs = GridFSClass.getInstance();
+    gfs = GridFSClass.getInstance();
     console.log("connected to database");
 });
 
