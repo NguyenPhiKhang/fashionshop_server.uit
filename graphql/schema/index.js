@@ -132,6 +132,16 @@ type Order{
   amount: Int
   price_order: Float
 }
+type Bill{
+  person: ID
+  price_ship: Float
+  total_price: Float
+  address: String
+  method_payment: String
+  orders: [Order]
+  delivery_status: String
+  isDone: Boolean
+}
 input AccountInput {
   name: String!
   email: String!
@@ -175,6 +185,7 @@ input CartInput{
   product_id: ID!
   option_amount_id: ID!
   amount: Int
+  price_order: Float
 }
 type RootQuery {
     login(email: String!, password: String!): AuthData!
@@ -200,6 +211,7 @@ type RootMutation {
     deleteProductInLevelCategories(id: ID!, idProduct: ID!): Boolean
     deleteProduct(id: ID!): Boolean
     updateTypeSizeCat(id: Int, size: String): Boolean
+    createBillProduct(person_id: ID, price_ship: Float, total_price: Float, address: String, method_payment: String, orders: [CartInput]): Bill
 }
 schema {
     query: RootQuery

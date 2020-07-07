@@ -14,6 +14,7 @@ const LevelCategories = require("../../models/level_categories");
 const Product = require("../../models/product");
 const AttributeProduct = require("../../models/attribute_product");
 const OptionAmount = require("../../models/option_amount");
+const Order = require("../../models/order");
 
 const categoryLoader = new DataLoader(async id => {
     let arr = [];
@@ -54,6 +55,10 @@ const permissionLoader = new DataLoader(perId => {
 
 const ratingStarLoader = new DataLoader(ratingId => {
     return RatingStar.find({ _id: { $in: ratingId } });
+});
+
+const orderLoader = new DataLoader(ord =>{
+    return orders(ord);
 });
 
 const levelCategoriesLoader = new DataLoader(async levelId => {
@@ -305,6 +310,23 @@ const products = async productIds => {
     }
 }
 
+const orders = async orderIds=>{
+    try {
+        const orders = await Order.find({ _id: { $in: orderIds } });
+
+        // optionAmounts.sort((a, b) => {
+        //     return (
+        //         opAmountIds.indexOf(a._id.toString()) - opAmountIds.indexOf(b._id.toString())
+        //     );
+        // });
+        return await Promise.all(orders.map(async ord => {
+            return await transformOrder(ord);
+        }));
+    } catch (error) {
+        throw error;
+    }
+}
+
 const attributeProducts = async attrProdIds => {
     try {
         const attrProds = await AttributeProduct.find({ _id: { $in: attrProdIds } });
@@ -496,6 +518,14 @@ const transformOrder = order => {
     }
 }
 
+const transformBill = bill =>{
+    return{
+        ...bill._doc,
+        _id: bill.id,
+        orders: ()=> orderLoader.loadMany(bill._doc.orders)
+    }
+}
+
 module.exports = {
     transformCategory: transformCategory,
     transformSubCategory: transformSubCategory,
@@ -504,5 +534,6 @@ module.exports = {
     transformAccount: transformAccount,
     transformPerson: transformPerson,
     transformProduct: transformProduct,
-    transformOrder: transformOrder
+    transformOrder: transformOrder,
+    transformBill: transformBill
 }
