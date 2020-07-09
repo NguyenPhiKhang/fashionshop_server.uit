@@ -24,7 +24,11 @@ const personSchema = new Schema({
     account_id:{
         type: Schema.Types.ObjectId,
         ref: "Account"
-    }
+    },
+    favorites: [{
+        type: Schema.Types.ObjectId,
+        ref: "Product"
+    }]
 },
     { timestamps: true }
 );

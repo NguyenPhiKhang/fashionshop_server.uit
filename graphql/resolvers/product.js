@@ -163,7 +163,13 @@ module.exports = {
             }
 
             return await Promise.all(products.map(async product => {
-                return await transformProduct(product);
+                let isFavorite = false;
+                if(typeof(args.person_id) !== "undefined" &&typeof(product.favoritors.length)!== "undefined" && product.favoritors.length !== 0)
+                {
+                    isFavorite = await product.favoritors.includes(args.person_id);
+                }
+                const returnProduct = await transformProduct(product);
+                return await {...returnProduct, isFavorite};
             }));
         } catch (error) {
             throw error;
@@ -227,7 +233,7 @@ module.exports = {
                     products = await Product.find({
                         $and: [{ categories: { $in: levelCatId } },
                         { product_code: { $in: colors } },
-                        { prodcut_code: { $in: sizes } },
+                        { product_code: { $in: sizes } },
                         { final_price: { $gte: args.price_min, $lte: args.price_max } }]
                     }).skip(skip).limit(limit);
                 } else {
@@ -240,11 +246,17 @@ module.exports = {
                     }
                     else {
                         if (colors.length === 0 && sizes.length > 0 && args.colors.length === 0 && args.price_max > 0) {
+
+                            console.log("ok");
+                            console.log(levelCatId);
+                            console.log(sizes);
                             products = await Product.find({
                                 $and: [{ categories: { $in: levelCatId } },
-                                { prodcut_code: { $in: sizes } },
+                                { product_code: { $in: sizes } },
                                 { final_price: { $gte: args.price_min, $lte: args.price_max } }]
                             }).skip(skip).limit(limit);
+
+                            console.log(products);
                         }
                         else {
                             if (colors.length === 0 && args.colors.length === 0 && sizes.length === 0 && args.sizes.length === 0 && args.price_max > 0) {

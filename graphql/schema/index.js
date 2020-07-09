@@ -82,6 +82,8 @@ type Product{
   category_id: String
   categories: LevelCategories
   record_status: Boolean!
+  favoritors: [ID]
+  isFavorite: Boolean
 }
 type Review{
   _id: ID!
@@ -196,7 +198,7 @@ type RootQuery {
     getAllAttribute: [Attribute]!
     getAttributeById(id: ID!): Attribute!
     getAllOption: [Option]!
-    getProduct(id: ID, pageNumber: Int, sort: Int, product_ids: [ID]): [Product]!
+    getProduct(id: ID, pageNumber: Int, sort: Int, product_ids: [ID], person_id: ID): [Product]!
     getProductByCategory(level_code: Int, pageNumber: Int, colors: [ID], sizes: [ID], price_min: Float, price_max: Float): [Product]!
     searchProduct(text: String!, pageNumber: Int!): [Product]!
     renderCart(cartInput: [CartInput]): [Order]!
@@ -212,6 +214,7 @@ type RootMutation {
     deleteProduct(id: ID!): Boolean
     updateTypeSizeCat(id: Int, size: String): Boolean
     createBillProduct(person_id: ID, price_ship: Float, total_price: Float, address: String, method_payment: String, orders: [CartInput]): Bill
+    actionFavorite(person_id: ID, product_id: ID): Boolean
 }
 schema {
     query: RootQuery

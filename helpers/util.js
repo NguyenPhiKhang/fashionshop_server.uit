@@ -22,8 +22,10 @@ const DeleteReview = async (reviews) => {
 
 const findProductInAttribute = async (options, attribute) => {
     if (options.length > 0) {
-        const a = await AttributeProduct.find({ $and: [{ attribute_code: attribute }, { value: { $in: options } }] }, { product_code: 1, _id: 0 }).then(value => {
-            return value.map(a => a.product_code);
+        const a = await AttributeProduct.find({ $and: [{ attribute_code: attribute }, { value: { $in: options } }] }, { product_code: 1, _id: 0 }).then(async value => {
+            const xxx = await Promise.all(value.map(a => a.product_code));
+            console.log(xxx);
+            return xxx;
         });
         return a;
     }
