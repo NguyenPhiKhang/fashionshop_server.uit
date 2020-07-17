@@ -144,6 +144,10 @@ type Bill{
   delivery_status: String
   isDone: Boolean
 }
+type ProductPage{
+  products: [Product]!,
+  total_record: Int!
+}
 input AccountInput {
   name: String!
   email: String!
@@ -198,9 +202,9 @@ type RootQuery {
     getAllAttribute: [Attribute]!
     getAttributeById(id: ID!): Attribute!
     getAllOption: [Option]!
-    getProduct(id: ID, pageNumber: Int, sort: Int, product_ids: [ID], person_id: ID): [Product]!
+    getProduct(id: ID, pageNumber: Int, sort: Int, product_ids: [ID], person_id: ID): ProductPage!
     getProductByCategory(level_code: Int, pageNumber: Int, colors: [ID], sizes: [ID], price_min: Float, price_max: Float): [Product]!
-    searchProduct(text: String!, pageNumber: Int!): [Product]!
+    searchProduct(text: String!, pageNumber: Int!): ProductPage!
     renderCart(cartInput: [CartInput]): [Order]!
 }
 type RootMutation {

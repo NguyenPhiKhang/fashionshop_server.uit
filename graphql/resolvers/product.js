@@ -147,7 +147,7 @@ module.exports = {
     getProduct: async (args) => {
         try {
             var products = [];
-            if (args.product_ids.length > 0) {
+            if (typeof (args.product_ids) !== "undefined" && args.product_ids.length > 0) {
                 products = await Product.find({ _id: { $in: args.product_ids } });
             } else {
                 let limit = 0;
@@ -161,16 +161,17 @@ module.exports = {
                     ? await Product.find({ _id: { $in: args.id } }).skip(skip).limit(limit)
                     : (args.sort === -1 || args.sort === 1) ? await Product.find({}).sort({ final_price: args.sort }).skip(skip).limit(limit) : await Product.find({}).skip(skip).limit(limit);
             }
-
-            return await Promise.all(products.map(async product => {
+            let total = (typeof (args.id) !== "undefined" || typeof (args.product_ids) !== "undefined") ? products.length : await Product.countDocuments({});
+            let prods = await Promise.all(products.map(async product => {
                 let isFavorite = false;
-                if(typeof(args.person_id) !== "undefined" &&typeof(product.favoritors.length)!== "undefined" && product.favoritors.length !== 0)
-                {
+                if (typeof (args.person_id) !== "undefined" && typeof (product.favoritors.length) !== "undefined" && product.favoritors.length !== 0) {
                     isFavorite = await product.favoritors.includes(args.person_id);
                 }
                 const returnProduct = await transformProduct(product);
-                return await {...returnProduct, isFavorite};
+                return await { ...returnProduct, isFavorite };
             }));
+
+            return { total_record: total, products: prods };
         } catch (error) {
             throw error;
         }
@@ -290,12 +291,23 @@ module.exports = {
             const newText = await args.text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d")
                 .replace(/Đ/g, "D");
             const page = await SkipLimit(args.pageNumber);
+            const total = await Product.countDocuments({ $text: { $search: newText } });
             const products = await Product.find({ $text: { $search: newText } }).skip(page.skip).limit(page.limit);
-            return await Promise.all(products.map(async product => {
+            const prods = await Promise.all(products.map(async product => {
                 return await transformProduct(product);
             }));
+
+            return { total_record: total, products: prods };
         } catch (error) {
             throw error;
         }
-    }
+    },
+    // addFreeship: async (args)=>{
+    //     try {
+    //         await Product.updateMany({},{$set: {is_freeship: false}});
+    //         return true;
+    //     } catch (error) {
+    //         throw error;
+    //     }
+    // }
 }
