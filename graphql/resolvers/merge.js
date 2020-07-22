@@ -1,6 +1,5 @@
 const DataLoader = require('dataloader');
 const mongoose = require("mongoose");
-const { map, groupBy } = require('ramda');
 
 const { dateToString } = require("../../helpers/date");
 const Category = require("../../models/category");
@@ -17,13 +16,13 @@ const OptionAmount = require("../../models/option_amount");
 const Order = require("../../models/order");
 
 const categoryLoader = new DataLoader(async id => {
-    let arr = [];
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-        arr = await Category.find({ category_code: { $in: id } });
+    console.log(id);
+    if (typeof (id) === "number" || typeof (id[0]) === "number") {
+        const q = await Category.find({ category_code: { $in: id } });
+        return q;
     } else {
-        arr = await Category.find({ _id: { $in: id } });
+        return await Category.find({ _id: { $in: id } });
     }
-    return arr;
 });
 
 const categorySubLoader = new DataLoader(ids => {
@@ -57,30 +56,33 @@ const ratingStarLoader = new DataLoader(ratingId => {
     return RatingStar.find({ _id: { $in: ratingId } });
 });
 
-const orderLoader = new DataLoader(ord =>{
+const orderLoader = new DataLoader(ord => {
     return orders(ord);
 });
 
 const levelCategoriesLoader = new DataLoader(async levelId => {
-    const levelCategories = await LevelCategories.find({ _id: { $in: levelId } });
-
-    //  const levelCategories = await LevelCategories.aggregate([
-    //     { $match: { _id: { $in: levelId } } },
-    //     { $addFields: { "__sort": { $indexOfArray: [levelId, "$_id"] } } },
-    //     { $sort: { "__sort": 1 } }
-    // ]);
+    // const levelCategories = await LevelCategories.find({ _id: { $in: levelId } });
+    const levelCategories = await LevelCategories.aggregate([
+        { $match: { _id: { $in: levelId } } },
+        { $addFields: { "__sort": { $indexOfArray: [levelId, "$_id"] } } },
+        { $sort: { "__sort": 1 } }
+    ]);
     // options.sort((a, b) => {
     //     return (
     //         optionIds.indexOf(a._id.toString()) - optionIds.indexOf(b._id.toString())
     //     );
     // });
     if (levelCategories.length !== levelId.length) {
-        const arrayOp = await (levelId.map(opId => {
+        const arrayOp = await Promise.all(levelId.map(opId => {
             return levelCategories.find(oId => oId._id.toString() === opId.toString());
         }));
-        return arrayOp;
+        return await Promise.all(arrayOp.map(async l => {
+            return await transformLevelCategories(l);
+        }))
     }
-    return levelCategories;
+    return await Promise.all(levelCategories.map(async l => {
+        return await transformLevelCategories(l);
+    }))
 });
 
 const productLoader = new DataLoader(productId => {
@@ -96,6 +98,10 @@ const optionAmountLoader = new DataLoader(opAmountIds => {
     return optionAmounts(opAmountIds);
 });
 
+const optionAmountDetailLoader = new DataLoader(opAmountIds => {
+    return optionAmountDetail(opAmountIds);
+});
+
 const optionAmountCartLoader = new DataLoader(opAmountIds => {
     return optionAmountsCart(opAmountIds);
 });
@@ -104,8 +110,15 @@ const categoryBind = async (parent_id) => {
     try {
         if (!parent_id)
             return null;
-        const category = await categoryLoader.load(parent_id);
-        return transformCategory(category);
+        // const category = await categoryLoader.load(parent_id);
+        if (typeof (parent_id) === "number" || typeof (parent_id[0]) === "number") {
+            const q = await Category.findOne({ category_code: { $in: parent_id } });
+            return await transformCategory(q);
+        } else {
+            const q = await Category.findOne({ _id: { $in: parent_id } });
+            return await transformCategory(q);
+        }
+        // return transformCategory(category);
     } catch (error) {
         throw error;
     }
@@ -171,7 +184,7 @@ const RatingStarBind = async (ratingId) => {
 const LevelCategoriesBind = async (levelId) => {
     try {
         const levelCategories = await levelCategoriesLoader.load(levelId);
-        return transformLevelCategories(levelCategories);
+        return levelCategories;
     } catch (error) {
         throw error;
     }
@@ -180,7 +193,6 @@ const LevelCategoriesBind = async (levelId) => {
 const SingleProduct = async productId => {
     try {
         const product = await productLoader.load(productId);
-        console.log(product);
         return product;
     } catch (error) {
         throw error;
@@ -198,7 +210,10 @@ const SingleAttribute = async attrId => {
 
 const SingleOption = async opId => {
     try {
+        if(!opId)
+            return null;
         const op = await optionLoader.load(opId);
+        // const op = await Option.findById(opId);
         return op;
     } catch (error) {
         throw error;
@@ -223,7 +238,6 @@ const options = async (optionIds) => {
         // const options = await Option.find({_id: {$in: optionIds}});
         // const groupedByIdAttr = groupBy(option => option.attribute_id, options);
         // const mapOption = map(attrId => groupedByIdAttr[attrId], ["5ef5bb5dc940dae5e5baf919", "5ef5bb93c940dae5e5baf91a"]);
-
         const options = await Option.aggregate([
             { $match: { _id: { $in: optionIds } } },
             { $addFields: { "__sort": { $indexOfArray: [optionIds, "$_id"] } } },
@@ -240,8 +254,8 @@ const options = async (optionIds) => {
                 return options.find(oId => oId._id.toString() === opId.toString());
             }));
 
-            return await Promise.all(arrayOp.map(async option => {
-                return await transformOption(option);
+            return await Promise.all(arrayOp.map(async opt => {
+                return await transformOption(opt);
             }));
         }
         return options.map(option => {
@@ -287,7 +301,7 @@ const attributes = async attrIds => {
 const products = async productIds => {
     try {
         let prods = [];
-        if (typeof (productIds[0]) === "number" || typeof(productIds) === "number") {
+        if (typeof (productIds[0]) === "number" || typeof (productIds) === "number") {
             prods = await Product.find({ product_code: { $in: productIds } });
         } else {
             // await productIds.map(async ddd=>{
@@ -310,7 +324,7 @@ const products = async productIds => {
     }
 }
 
-const orders = async orderIds=>{
+const orders = async orderIds => {
     try {
         const orders = await Order.find({ _id: { $in: orderIds } });
 
@@ -360,6 +374,23 @@ const optionAmounts = async opAmountIds => {
     }
 }
 
+const optionAmountDetail = async opAmountIds => {
+    try {
+        const optionAmounts = await OptionAmount.find({ _id: { $in: opAmountIds } });
+
+        // optionAmounts.sort((a, b) => {
+        //     return (
+        //         opAmountIds.indexOf(a._id.toString()) - opAmountIds.indexOf(b._id.toString())
+        //     );
+        // });
+        return await Promise.all(optionAmounts.map(async opAmount => {
+            return await transformOptionAmountDetail(opAmount);
+        }));
+    } catch (error) {
+        throw error;
+    }
+}
+
 const optionAmountsCart = async opAmountIds => {
     try {
         const optionAmounts = await OptionAmount.find({ _id: { $in: opAmountIds } });
@@ -369,7 +400,6 @@ const optionAmountsCart = async opAmountIds => {
         //         opAmountIds.indexOf(a._id.toString()) - opAmountIds.indexOf(b._id.toString())
         //     );
         // });
-        console.log(optionAmounts);
         return await Promise.all(optionAmounts.map(async opAmount => {
             // const a = opAmount._doc.product_code;
             return await
@@ -406,7 +436,6 @@ const transformSubCategory = category => {
 const transformOption = option => {
     return {
         ...option,
-        _id: option._id,
         attribute: SingleAttribute.bind(this, option.attribute_id)
     }
 }
@@ -469,12 +498,11 @@ const transformRatingStar = rating => {
 
 const transformLevelCategories = level => {
     return {
-        ...level._doc,
-        _id: level.id,
-        category_level1: categoryBind.bind(this, level._doc.category_level1_id),
-        category_level2: categoryBind.bind(this, level._doc.category_level2_id),
-        category_level3: categoryBind.bind(this, level._doc.category_level3_id),
-        products: () => productLoader.loadMany(level._doc.products)
+        ...level,
+        category_level1: categoryBind.bind(this, level.category_level1_id),
+        category_level2: categoryBind.bind(this, level.category_level2_id),
+        category_level3: categoryBind.bind(this, level.category_level3_id),
+        products: () => productLoader.loadMany(level.products)
     }
 }
 
@@ -499,12 +527,33 @@ const transformProduct = product => {
     }
 }
 
+const transformProductDetail = product => {
+    return {
+        ...product._doc,
+        _id: product.id,
+        rating_star: RatingStarBind.bind(this, product._doc.rating_star),
+        categories: LevelCategoriesBind.bind(this, product._doc.categories),
+        attribute: () => attributeProductLoader.loadMany(product._doc.attribute),
+        option_amount: () => optionAmountDetailLoader.loadMany(product._doc.option_amount),
+    }
+}
+
 const transformOptionAmount = opAmount => {
     return {
         ...opAmount._doc,
         _id: opAmount.id,
         // option_color: SingleOption.bind(this, opAmount._doc.option_color),
         // option_size: SingleOption.bind(this, opAmount._doc.option_size),
+        product: SingleProduct.bind(this, opAmount._doc.product_code)
+    }
+}
+
+const transformOptionAmountDetail = opAmount => {
+    return {
+        ...opAmount._doc,
+        _id: opAmount.id,
+        option_color: SingleOption.bind(this, opAmount._doc.option_color),
+        option_size: SingleOption.bind(this, opAmount._doc.option_size),
         product: SingleProduct.bind(this, opAmount._doc.product_code)
     }
 }
@@ -518,11 +567,11 @@ const transformOrder = order => {
     }
 }
 
-const transformBill = bill =>{
-    return{
+const transformBill = bill => {
+    return {
         ...bill._doc,
         _id: bill.id,
-        orders: ()=> orderLoader.loadMany(bill._doc.orders)
+        orders: () => orderLoader.loadMany(bill._doc.orders)
     }
 }
 
@@ -535,5 +584,6 @@ module.exports = {
     transformPerson: transformPerson,
     transformProduct: transformProduct,
     transformOrder: transformOrder,
-    transformBill: transformBill
+    transformBill: transformBill,
+    transformProductDetail: transformProductDetail
 }

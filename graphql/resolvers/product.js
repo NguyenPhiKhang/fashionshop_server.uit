@@ -7,7 +7,7 @@ const Atrribute = require("../../models/attribute");
 const RatingStar = require("../../models/rating_star");
 const { CeilPrice } = require("../../helpers/ceil_price");
 const genCode = require("./sysGenId");
-const { transformProduct } = require('./merge');
+const { transformProduct, transformProductDetail } = require('./merge');
 const { DeleteImage, DeleteReview, findProductInAttribute, SkipLimit } = require('../../helpers/util');
 const { deleteProductInLevelCategories } = require('./levelcategories');
 const { product } = require('ramda');
@@ -176,6 +176,14 @@ module.exports = {
             throw error;
         }
     },
+    getProductById: async (args) => {
+        try {
+            const product = await Product.findById(args.id);
+            return await transformProductDetail(product);
+        } catch (error) {
+            throw error;
+        }
+    },
     deleteProduct: async (args) => {
         try {
             // const producsNo = await Product.find({ images: [] });
@@ -191,14 +199,17 @@ module.exports = {
             //     // await DeleteReview(prodc.review);
             //     // await deleteProductInLevelCategories({ id: prodc.categories, idProduct: prodc._id });
             // }))
-            const prodc = await Product.findById(args.id);
-            await Product.deleteOne({ _id: args.id });
-            await DeleteImage(prodc.images);
-            if (prodc.rating_star !== null) await RatingStar.deleteOne({ _id: prodc.rating_star });
-            if (prodc.attribute.length > 0) await AttributeProduct.deleteMany({ _id: { $in: prodc.attribute } });
-            if (prodc.option_amount.length > 0) await OptionAmount.deleteMany({ _id: { $in: prodc.option_amount } });
-            await DeleteReview(prodc.review);
-            await deleteProductInLevelCategories({ id: prodc.categories, idProduct: prodc._id });
+
+            await Promise.all(args.ids.map(async id => {
+                const prodc = await Product.findById(id);
+                await Product.deleteOne({ _id: args.id });
+                await DeleteImage(prodc.images);
+                if (prodc.rating_star !== null) await RatingStar.deleteOne({ _id: prodc.rating_star });
+                if (prodc.attribute.length > 0) await AttributeProduct.deleteMany({ _id: { $in: prodc.attribute } });
+                if (prodc.option_amount.length > 0) await OptionAmount.deleteMany({ _id: { $in: prodc.option_amount } });
+                await DeleteReview(prodc.review);
+                await deleteProductInLevelCategories({ id: prodc.categories, idProduct: prodc._id });
+            }));
             return true;
         } catch (error) {
             throw error;

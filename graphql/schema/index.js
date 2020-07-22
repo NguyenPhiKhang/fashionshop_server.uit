@@ -85,6 +85,32 @@ type Product{
   favoritors: [ID]
   isFavorite: Boolean
 }
+type ProductDetail{
+  _id: ID!
+  product_code: Int!
+  name: String!
+  img_url: String
+  images: [String]
+  price: Float!
+  final_price: Float!
+  promotion_percent: Float
+  description: String!
+  total_review: Int
+  order_count: Int
+  weight: Float
+  short_description: String
+  rating_star: RatingStar
+  stock_status: Boolean!
+  review: [Review]
+  is_freeship: Boolean
+  attribute: [AttributeProduct]
+  option_amount: [OptionAmountDetail]
+  category_id: String
+  categories: LevelCategories
+  record_status: Boolean!
+  favoritors: [ID]
+  isFavorite: Boolean
+}
 type Review{
   _id: ID!
   person: Person!
@@ -103,9 +129,16 @@ type AttributeProduct{
 }
 type OptionAmount{
   _id: ID!
-  option_color: ID!
-  option_size: ID!
-  product: Product!
+  option_color: ID
+  option_size: ID
+  product: Product
+  amount: Int!
+}
+type OptionAmountDetail{
+  _id: ID!
+  option_color: Option
+  option_size: Option
+  product: Product
   amount: Int!
 }
 type OptionAmountCart{
@@ -203,6 +236,7 @@ type RootQuery {
     getAttributeById(id: ID!): Attribute!
     getAllOption: [Option]!
     getProduct(id: ID, pageNumber: Int, sort: Int, product_ids: [ID], person_id: ID): ProductPage!
+    getProductById(id: ID!): ProductDetail!
     getProductByCategory(level_code: Int, pageNumber: Int, colors: [ID], sizes: [ID], price_min: Float, price_max: Float): [Product]!
     searchProduct(text: String!, pageNumber: Int!): ProductPage!
     renderCart(cartInput: [CartInput]): [Order]!
@@ -215,7 +249,7 @@ type RootMutation {
     createOption(optionInput: OptionInput): Option
     createProduct(productInput: ProductInput): Product
     deleteProductInLevelCategories(id: ID!, idProduct: ID!): Boolean
-    deleteProduct(id: ID!): Boolean
+    deleteProduct(ids: [ID]!): Boolean
     updateTypeSizeCat(id: Int, size: String): Boolean
     createBillProduct(person_id: ID, price_ship: Float, total_price: Float, address: String, method_payment: String, orders: [CartInput]): Bill
     actionFavorite(person_id: ID, product_id: ID): Boolean
