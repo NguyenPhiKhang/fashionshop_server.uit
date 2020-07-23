@@ -57,7 +57,6 @@ module.exports = {
             const attrProduct = await Promise.all(attrValues.map(async f => {
                 const x = (f._doc.attribute_code === 1) ? await f._doc.value.filter(c => arrColor.includes(c.toString())) :
                     await f._doc.value.filter(c => arrSize.includes(c.toString()));
-                console.log(x);
 
                 const attrProd = new AttributeProduct({
                     attribute_code: f._doc.attribute_code,
@@ -237,7 +236,7 @@ module.exports = {
             let products = [];
 
             if (args.colors.length === 0 && args.sizes.length === 0 && args.price_max === 0) {
-                products = await Product.find({ categories: { $in: levelCatId } }).skip(skip).limit(limit);
+                products = await Product.find({ categories: { $in: levelCatId } }).sort({final_price: typeof(args.sort)==="undefined"?0:args.sort}).skip(skip).limit(limit);
             }
             else {
                 if ((colors.length > 0 || (colors.length === 0 && args.colors.length > 0))
@@ -247,14 +246,14 @@ module.exports = {
                         { product_code: { $in: colors } },
                         { product_code: { $in: sizes } },
                         { final_price: { $gte: args.price_min, $lte: args.price_max } }]
-                    }).skip(skip).limit(limit);
+                    }).sort({final_price: typeof(args.sort)==="undefined"?0:args.sort}).skip(skip).limit(limit);
                 } else {
                     if (colors.length > 0 && sizes.length === 0 && args.sizes.length === 0 && args.price_max > 0) {
                         products = await Product.find({
                             $and: [{ categories: { $in: levelCatId } },
                             { product_code: { $in: colors } },
                             { final_price: { $gte: args.price_min, $lte: args.price_max } }]
-                        }).skip(skip).limit(limit);
+                        }).sort({final_price: typeof(args.sort)==="undefined"?0:args.sort}).skip(skip).limit(limit);
                     }
                     else {
                         if (colors.length === 0 && sizes.length > 0 && args.colors.length === 0 && args.price_max > 0) {
@@ -266,7 +265,7 @@ module.exports = {
                                 $and: [{ categories: { $in: levelCatId } },
                                 { product_code: { $in: sizes } },
                                 { final_price: { $gte: args.price_min, $lte: args.price_max } }]
-                            }).skip(skip).limit(limit);
+                            }).sort({final_price: typeof(args.sort)==="undefined"?0:args.sort}).skip(skip).limit(limit);
 
                             console.log(products);
                         }
@@ -275,7 +274,7 @@ module.exports = {
                                 products = await Product.find({
                                     $and: [{ categories: { $in: levelCatId } },
                                     { final_price: { $gte: args.price_min, $lte: args.price_max } }]
-                                }).skip(skip).limit(limit);
+                                }).sort({final_price: typeof(args.sort)==="undefined"?0:args.sort}).skip(skip).limit(limit);
                             }
                         }
                     }

@@ -237,7 +237,7 @@ type RootQuery {
     getAllOption: [Option]!
     getProduct(id: ID, pageNumber: Int, sort: Int, product_ids: [ID], person_id: ID): ProductPage!
     getProductById(id: ID!): ProductDetail!
-    getProductByCategory(level_code: Int, pageNumber: Int, colors: [ID], sizes: [ID], price_min: Float, price_max: Float): [Product]!
+    getProductByCategory(level_code: Int, pageNumber: Int, colors: [ID], sizes: [ID], price_min: Float, price_max: Float, sort: Int): [Product]!
     searchProduct(text: String!, pageNumber: Int!): ProductPage!
     renderCart(cartInput: [CartInput]): [Order]!
 }
