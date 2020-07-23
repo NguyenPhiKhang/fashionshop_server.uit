@@ -148,7 +148,7 @@ module.exports = {
         try {
             var products = [];
             if (typeof (args.product_ids) !== "undefined" && args.product_ids.length > 0) {
-                products = await Product.find({ _id: { $in: args.product_ids } });
+                products = (args.sort === -1 || args.sort === 1)?await Product.find({ _id: { $in: args.product_ids } }).sort({final_price: args.sort}): await Product.find({ _id: { $in: args.product_ids } });
             } else {
                 let limit = 0;
                 let skip = 0;
