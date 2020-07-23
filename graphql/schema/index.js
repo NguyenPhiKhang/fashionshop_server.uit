@@ -238,7 +238,7 @@ type RootQuery {
     getProduct(id: ID, pageNumber: Int, sort: Int, product_ids: [ID], person_id: ID): ProductPage!
     getProductById(id: ID!): ProductDetail!
     getProductByCategory(level_code: Int, pageNumber: Int, colors: [ID], sizes: [ID], price_min: Float, price_max: Float, sort: Int): [Product]!
-    searchProduct(text: String!, pageNumber: Int!): ProductPage!
+    searchProduct(text: String!, pageNumber: Int!, sort: Int): ProductPage!
     renderCart(cartInput: [CartInput]): [Order]!
 }
 type RootMutation {
