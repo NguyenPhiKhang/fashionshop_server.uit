@@ -14,9 +14,9 @@ const Product = require("../../models/product");
 const AttributeProduct = require("../../models/attribute_product");
 const OptionAmount = require("../../models/option_amount");
 const Order = require("../../models/order");
+const Cart = require("../../models/cart");
 
 const categoryLoader = new DataLoader(async id => {
-    console.log(id);
     if (typeof (id) === "number" || typeof (id[0]) === "number") {
         const q = await Category.find({ category_code: { $in: id } });
         return q;
@@ -86,7 +86,6 @@ const levelCategoriesLoader = new DataLoader(async levelId => {
 });
 
 const productLoader = new DataLoader(productId => {
-
     return products(productId);
 });
 
@@ -102,9 +101,14 @@ const optionAmountDetailLoader = new DataLoader(opAmountIds => {
     return optionAmountDetail(opAmountIds);
 });
 
-const optionAmountCartLoader = new DataLoader(opAmountIds => {
-    return optionAmountsCart(opAmountIds);
+const cartLoader = new DataLoader(cartIds =>{
+    return carts(cartIds);
 });
+
+// const optionAmountCartLoader = new DataLoader(opAmountIds => {
+//     return optionAmountsCart(opAmountIds);
+// });
+
 
 const categoryBind = async (parent_id) => {
     try {
@@ -222,7 +226,7 @@ const SingleOption = async opId => {
 
 const SingleOptionAmount = async opAmountId => {
     try {
-        const opAmount = await optionAmountCartLoader.load(opAmountId);
+        const opAmount = await optionAmountDetailLoader.load(opAmountId);
         return opAmount;
     } catch (error) {
         throw error;
@@ -341,6 +345,17 @@ const orders = async orderIds => {
     }
 }
 
+const carts = async cartIds =>{
+    try {
+        const carts = await Cart.find({_id: {$in: cartIds}});
+        return await Promise.all(carts.map(async cart => {
+            return await transformCart(cart);
+        }));
+    } catch (error) {
+        throw error;
+    }
+}
+
 const attributeProducts = async attrProdIds => {
     try {
         const attrProds = await AttributeProduct.find({ _id: { $in: attrProdIds } });
@@ -391,30 +406,30 @@ const optionAmountDetail = async opAmountIds => {
     }
 }
 
-const optionAmountsCart = async opAmountIds => {
-    try {
-        const optionAmounts = await OptionAmount.find({ _id: { $in: opAmountIds } });
+// const optionAmountsCart = async opAmountIds => {
+//     try {
+//         const optionAmounts = await OptionAmount.find({ _id: { $in: opAmountIds } });
 
-        // optionAmounts.sort((a, b) => {
-        //     return (
-        //         opAmountIds.indexOf(a._id.toString()) - opAmountIds.indexOf(b._id.toString())
-        //     );
-        // });
-        return await Promise.all(optionAmounts.map(async opAmount => {
-            // const a = opAmount._doc.product_code;
-            return await
-                {
-                    ...opAmount._doc,
-                    _id: opAmount.id,
-                    option_color: SingleOption.bind(this, opAmount._doc.option_color),
-                    option_size: SingleOption.bind(this, opAmount._doc.option_size),
-                    product: SingleProduct.bind(this, opAmount._doc.product_code)
-                };
-        }));
-    } catch (error) {
-        throw error;
-    }
-}
+//         // optionAmounts.sort((a, b) => {
+//         //     return (
+//         //         opAmountIds.indexOf(a._id.toString()) - opAmountIds.indexOf(b._id.toString())
+//         //     );
+//         // });
+//         return await Promise.all(optionAmounts.map(async opAmount => {
+//             // const a = opAmount._doc.product_code;
+//             return await
+//                 {
+//                     ...opAmount._doc,
+//                     _id: opAmount.id,
+//                     option_color: SingleOption.bind(this, opAmount._doc.option_color),
+//                     option_size: SingleOption.bind(this, opAmount._doc.option_size),
+//                     product: SingleProduct.bind(this, opAmount._doc.product_code)
+//                 };
+//         }));
+//     } catch (error) {
+//         throw error;
+//     }
+// }
 
 const transformCategory = category => {
     return {
@@ -562,8 +577,22 @@ const transformOrder = order => {
     return {
         ...order._doc,
         _id: order.id,
-        product: SingleProduct.bind(this, order._doc.product_id),
-        option_amount: SingleOptionAmount.bind(this, order._doc.option_amount_id)
+        // product: SingleProduct.bind(this, order._doc.product_id),
+        // option_amount: SingleOptionAmount.bind(this, order._doc.option_amount_id),
+        person: PersonBind.bind(this, order._doc.person_id),
+        carts: ()=> cartLoader.loadMany(order._doc.carts),
+        createdAt: dateToString(order._doc.createdAt),
+        updatedAt: dateToString(order._doc.updatedAt)
+    }
+}
+
+const transformCart = cart => {
+    return {
+        ...cart._doc,
+        _id: cart.id,
+        product: SingleProduct.bind(this, cart._doc.product_id),
+        option_amount: SingleOptionAmount.bind(this, cart._doc.option_amount_id),
+        person: PersonBind.bind(this, cart._doc.person_id)
     }
 }
 
@@ -585,5 +614,6 @@ module.exports = {
     transformProduct: transformProduct,
     transformOrder: transformOrder,
     transformBill: transformBill,
-    transformProductDetail: transformProductDetail
+    transformProductDetail: transformProductDetail,
+    transformCart: transformCart
 }

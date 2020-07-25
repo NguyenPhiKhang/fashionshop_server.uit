@@ -147,7 +147,7 @@ module.exports = {
         try {
             var products = [];
             if (typeof (args.product_ids) !== "undefined" && args.product_ids.length > 0) {
-                products = (args.sort === -1 || args.sort === 1)?await Product.find({ _id: { $in: args.product_ids } }).sort({final_price: args.sort}): await Product.find({ _id: { $in: args.product_ids } });
+                products = (args.sort === -1 || args.sort === 1) ? await Product.find({ _id: { $in: args.product_ids } }).sort({ final_price: args.sort }) : await Product.find({ _id: { $in: args.product_ids } });
             } else {
                 let limit = 0;
                 let skip = 0;
@@ -167,7 +167,7 @@ module.exports = {
                     isFavorite = await product.favoritors.includes(args.person_id);
                 }
                 const returnProduct = await transformProduct(product);
-                return await { ...returnProduct, isFavorite };
+                return await { ...returnProduct, isFavorite: isFavorite };
             }));
 
             return { total_record: total, products: prods };
@@ -178,7 +178,12 @@ module.exports = {
     getProductById: async (args) => {
         try {
             const product = await Product.findById(args.id);
-            return await transformProductDetail(product);
+            let isFavorite = false;
+            if (typeof (args.person_id) !== "undefined" && typeof (product.favoritors.length) !== "undefined" && product.favoritors.length !== 0) {
+                isFavorite = await product.favoritors.includes(args.person_id);
+            }
+            const returnProduct = await transformProductDetail(product);
+            return await { ...returnProduct, isFavorite: isFavorite };
         } catch (error) {
             throw error;
         }
@@ -236,7 +241,7 @@ module.exports = {
             let products = [];
 
             if (args.colors.length === 0 && args.sizes.length === 0 && args.price_max === 0) {
-                products = await Product.find({ categories: { $in: levelCatId } }).sort((typeof(args.sort)==="undefined"||args.sort===0)?{}:{final_price: args.sort}).skip(skip).limit(limit);
+                products = await Product.find({ categories: { $in: levelCatId } }).sort((typeof (args.sort) === "undefined" || args.sort === 0) ? {} : { final_price: args.sort }).skip(skip).limit(limit);
             }
             else {
                 if ((colors.length > 0 || (colors.length === 0 && args.colors.length > 0))
@@ -246,14 +251,14 @@ module.exports = {
                         { product_code: { $in: colors } },
                         { product_code: { $in: sizes } },
                         { final_price: { $gte: args.price_min, $lte: args.price_max } }]
-                    }).sort((typeof(args.sort)==="undefined"||args.sort===0)?{}:{final_price: args.sort}).skip(skip).limit(limit);
+                    }).sort((typeof (args.sort) === "undefined" || args.sort === 0) ? {} : { final_price: args.sort }).skip(skip).limit(limit);
                 } else {
                     if (colors.length > 0 && sizes.length === 0 && args.sizes.length === 0 && args.price_max > 0) {
                         products = await Product.find({
                             $and: [{ categories: { $in: levelCatId } },
                             { product_code: { $in: colors } },
                             { final_price: { $gte: args.price_min, $lte: args.price_max } }]
-                        }).sort((typeof(args.sort)==="undefined"||args.sort===0)?{}:{final_price: args.sort}).skip(skip).limit(limit);
+                        }).sort((typeof (args.sort) === "undefined" || args.sort === 0) ? {} : { final_price: args.sort }).skip(skip).limit(limit);
                     }
                     else {
                         if (colors.length === 0 && sizes.length > 0 && args.colors.length === 0 && args.price_max > 0) {
@@ -265,7 +270,7 @@ module.exports = {
                                 $and: [{ categories: { $in: levelCatId } },
                                 { product_code: { $in: sizes } },
                                 { final_price: { $gte: args.price_min, $lte: args.price_max } }]
-                            }).sort((typeof(args.sort)==="undefined"||args.sort===0)?{}:{final_price: args.sort}).skip(skip).limit(limit);
+                            }).sort((typeof (args.sort) === "undefined" || args.sort === 0) ? {} : { final_price: args.sort }).skip(skip).limit(limit);
 
                             console.log(products);
                         }
@@ -274,7 +279,7 @@ module.exports = {
                                 products = await Product.find({
                                     $and: [{ categories: { $in: levelCatId } },
                                     { final_price: { $gte: args.price_min, $lte: args.price_max } }]
-                                }).sort((typeof(args.sort)==="undefined"||args.sort===0)?{}:{final_price: args.sort}).skip(skip).limit(limit);
+                                }).sort((typeof (args.sort) === "undefined" || args.sort === 0) ? {} : { final_price: args.sort }).skip(skip).limit(limit);
                             }
                         }
                     }
@@ -302,7 +307,7 @@ module.exports = {
                 .replace(/Đ/g, "D");
             const page = await SkipLimit(args.pageNumber);
             const total = await Product.countDocuments({ $text: { $search: newText } });
-            const products = await Product.find({ $text: { $search: newText } }).sort((typeof(args.sort)==="undefined"||args.sort===0)?{}:{final_price: args.sort}).skip(page.skip).limit(page.limit);
+            const products = await Product.find({ $text: { $search: newText } }).sort((typeof (args.sort) === "undefined" || args.sort === 0) ? {} : { final_price: args.sort }).skip(page.skip).limit(page.limit);
             const prods = await Promise.all(products.map(async product => {
                 return await transformProduct(product);
             }));
@@ -312,6 +317,7 @@ module.exports = {
             throw error;
         }
     },
+    
     // addFreeship: async (args)=>{
     //     try {
     //         await Product.updateMany({},{$set: {is_freeship: false}});

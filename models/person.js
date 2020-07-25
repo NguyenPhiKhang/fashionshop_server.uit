@@ -18,9 +18,9 @@ const personSchema = new Schema({
     birthday:{
         type: Date
     },
-    shipping_address:{
+    shipping_address:[{
         type: String,
-    },
+    }],
     account_id:{
         type: Schema.Types.ObjectId,
         ref: "Account"
@@ -28,7 +28,15 @@ const personSchema = new Schema({
     favorites: [{
         type: Schema.Types.ObjectId,
         ref: "Product"
-    }]
+    }],
+    carts: [{
+        type: Schema.Types.ObjectId,
+        ref: "Cart"
+    }],
+    record_status: {
+        type: Boolean,
+        default: true
+    }
 },
     { timestamps: true }
 );

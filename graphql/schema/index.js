@@ -155,17 +155,34 @@ type Person{
   sex: String
   number_phone: String
   birthday: String
-  shipping_address: String
+  shipping_address: [String]
   account: Account!
+  record_status: Boolean
+  carts: [ID]
+  favorites: [ID]
   createdAt: String!
   updatedAt: String!
 }
 type Order{
   _id: ID!
+  person: Person!
+  price_ship: Float
+  total_price: Float
+  address: String
+  method_payment: String
+  carts: [Cart]
+  delivery_status: String
+  shipping_unit: String
+  createdAt: String!
+  updatedAt: String!
+}
+type Cart{
+  _id: ID!
   product: Product!
+  person: Person!
   option_amount: OptionAmountCart!
-  amount: Int
-  price_order: Float
+  amount: Int!
+  price_order: Float!
 }
 type Bill{
   person: ID
@@ -215,16 +232,38 @@ input ProductInput{
   category_id: String!
   option_amount: [OptionAmountInput]!
 }
+input ProductEditInput{
+  id: ID!
+  name: String
+  price: Float
+  images: [String]
+  imagesDeleted: [String]
+  promotion_price: Float
+  weight: Float
+  is_freeship: Boolean
+  description: String
+  old_category: String
+  new_category: String
+}
 input OptionAmountInput{
   color_id: ID
   size_id: ID
   amount: Int!
 }
 input CartInput{
+  person_id: ID!
   product_id: ID!
   option_amount_id: ID!
   amount: Int
   price_order: Float
+}
+input OrderInput{
+  person_id: ID!
+  price_ship: Float
+  total_price: Float
+  address: String
+  method_payment: String
+  carts: [ID]
 }
 type RootQuery {
     login(email: String!, password: String!): AuthData!
@@ -236,10 +275,12 @@ type RootQuery {
     getAttributeById(id: ID!): Attribute!
     getAllOption: [Option]!
     getProduct(id: ID, pageNumber: Int, sort: Int, product_ids: [ID], person_id: ID): ProductPage!
-    getProductById(id: ID!): ProductDetail!
+    getProductById(id: ID!, person_id: ID): ProductDetail!
     getProductByCategory(level_code: Int, pageNumber: Int, colors: [ID], sizes: [ID], price_min: Float, price_max: Float, sort: Int): [Product]!
     searchProduct(text: String!, pageNumber: Int!, sort: Int): ProductPage!
-    renderCart(cartInput: [CartInput]): [Order]!
+    getCarts(ids: [ID], person_id: ID): [Cart]!
+    getPerson(id: ID): Person!
+    getOrder(person_id: ID): [Order]!
 }
 type RootMutation {
     createAccount(accountInput: AccountInput): Account
@@ -253,6 +294,12 @@ type RootMutation {
     updateTypeSizeCat(id: Int, size: String): Boolean
     createBillProduct(person_id: ID, price_ship: Float, total_price: Float, address: String, method_payment: String, orders: [CartInput]): Bill
     actionFavorite(person_id: ID, product_id: ID): Boolean
+    updateProduct(productEditInput: ProductEditInput): String
+    addCart(cartInput: CartInput): Cart
+    deleteCart(ids: [ID]!): Boolean
+    updateCart(id: ID, amount: Int, price: Float): Boolean
+    createOrder(orderInput: OrderInput): Order
+    updatePerson(id: ID, name: String): Boolean
 }
 schema {
     query: RootQuery
