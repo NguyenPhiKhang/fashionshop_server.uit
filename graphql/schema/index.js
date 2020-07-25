@@ -300,6 +300,7 @@ type RootMutation {
     updateCart(id: ID, amount: Int, price: Float): Boolean
     createOrder(orderInput: OrderInput): Order
     updatePerson(id: ID, name: String): Boolean
+    updateOrder(id: ID, shipping_unit: String, delivery_status: String): Boolean
 }
 schema {
     query: RootQuery
