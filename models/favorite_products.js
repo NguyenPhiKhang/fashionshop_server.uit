@@ -6,10 +6,12 @@ const favoriteProductSchema = new Schema({
     product_id:{
         type: Schema.Types.ObjectId,
         require: true,
+        ref: "Product"
     },
     person_id:{
         type: Schema.Types.ObjectId,
         require: true,
+        ref: "Person"
     }
 });
 

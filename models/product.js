@@ -77,13 +77,7 @@ const productSchema = new Schema({
     record_status: {
         type: Boolean,
         required: true
-    },
-    favoritors: [
-        {
-            type: Schema.Types.ObjectId,
-            ref: "Person"
-        }
-    ]
+    }
 });
 
 productSchema.indexes({name: "text"});

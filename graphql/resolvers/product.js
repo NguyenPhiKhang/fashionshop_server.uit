@@ -162,12 +162,13 @@ module.exports = {
             }
             let total = (typeof (args.id) !== "undefined" || typeof (args.product_ids) !== "undefined") ? products.length : await Product.countDocuments({});
             let prods = await Promise.all(products.map(async product => {
-                let isFavorite = false;
-                if (typeof (args.person_id) !== "undefined" && typeof (product.favoritors.length) !== "undefined" && product.favoritors.length !== 0) {
-                    isFavorite = await product.favoritors.includes(args.person_id);
-                }
+                // let isFavorite = false;
+                // if (typeof (args.person_id) !== "undefined" && typeof (product.favoritors.length) !== "undefined" && product.favoritors.length !== 0) {
+                //     isFavorite = await product.favoritors.includes(args.person_id);
+                // }
                 const returnProduct = await transformProduct(product);
-                return await { ...returnProduct, isFavorite: isFavorite };
+                return await returnProduct;
+                // return await { ...returnProduct, isFavorite: isFavorite };
             }));
 
             return { total_record: total, products: prods };
@@ -178,12 +179,14 @@ module.exports = {
     getProductById: async (args) => {
         try {
             const product = await Product.findById(args.id);
-            let isFavorite = false;
-            if (typeof (args.person_id) !== "undefined" && typeof (product.favoritors.length) !== "undefined" && product.favoritors.length !== 0) {
-                isFavorite = await product.favoritors.includes(args.person_id);
-            }
-            const returnProduct = await transformProductDetail(product);
-            return await { ...returnProduct, isFavorite: isFavorite };
+            // let isFavorite = false;
+            // if (typeof (args.person_id) !== "undefined" && typeof (product.favoritors.length) !== "undefined" && product.favoritors.length !== 0) {
+            //     isFavorite = await product.favoritors.includes(args.person_id);
+            // }
+            // const returnProduct = await transformProductDetail(product);
+            // return await { ...returnProduct, isFavorite: isFavorite };
+
+            return await transformProductDetail(product);
         } catch (error) {
             throw error;
         }

@@ -15,6 +15,7 @@ const AttributeProduct = require("../../models/attribute_product");
 const OptionAmount = require("../../models/option_amount");
 const Order = require("../../models/order");
 const Cart = require("../../models/cart");
+const FavoriteProduct = require("../../models/favorite_products");
 
 const categoryLoader = new DataLoader(async id => {
     if (typeof (id) === "number" || typeof (id[0]) === "number") {
@@ -104,6 +105,12 @@ const optionAmountDetailLoader = new DataLoader(opAmountIds => {
 const cartLoader = new DataLoader(cartIds =>{
     return carts(cartIds);
 });
+
+const favoriteLoader = new DataLoader(favId=>{
+    // if(typeof(favId)==="undefined")
+    //     return false;
+    // else return 
+})
 
 // const optionAmountCartLoader = new DataLoader(opAmountIds => {
 //     return optionAmountsCart(opAmountIds);
@@ -531,14 +538,15 @@ const transformAttributeProduct = attrProduct => {
     }
 }
 
-const transformProduct = product => {
-    return {
+const transformProduct = async product => {
+    return await {
         ...product._doc,
         _id: product.id,
         rating_star: RatingStarBind.bind(this, product._doc.rating_star),
         categories: LevelCategoriesBind.bind(this, product._doc.categories),
         attribute: () => attributeProductLoader.loadMany(product._doc.attribute),
         option_amount: () => optionAmountLoader.loadMany(product._doc.option_amount),
+        isFavorite: async (args)=> await Person.countDocuments({$and: [{_id: args.person_id}, {favorites: product.id}]})>0
     }
 }
 
@@ -550,6 +558,7 @@ const transformProductDetail = product => {
         categories: LevelCategoriesBind.bind(this, product._doc.categories),
         attribute: () => attributeProductLoader.loadMany(product._doc.attribute),
         option_amount: () => optionAmountDetailLoader.loadMany(product._doc.option_amount),
+        isFavorite: async (args)=> await Person.countDocuments({$and: [{_id: args.person_id}, {favorites: product.id}]})>0
     }
 }
 

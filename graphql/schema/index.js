@@ -82,8 +82,7 @@ type Product{
   category_id: String
   categories: LevelCategories
   record_status: Boolean!
-  favoritors: [ID]
-  isFavorite: Boolean
+  isFavorite(person_id: ID): Boolean
 }
 type ProductDetail{
   _id: ID!
@@ -108,8 +107,7 @@ type ProductDetail{
   category_id: String
   categories: LevelCategories
   record_status: Boolean!
-  favoritors: [ID]
-  isFavorite: Boolean
+  isFavorite(person_id: ID): Boolean
 }
 type Review{
   _id: ID!
@@ -276,11 +274,12 @@ type RootQuery {
     getAllOption: [Option]!
     getProduct(id: ID, pageNumber: Int, sort: Int, product_ids: [ID], person_id: ID): ProductPage!
     getProductById(id: ID!, person_id: ID): ProductDetail!
-    getProductByCategory(level_code: Int, pageNumber: Int, colors: [ID], sizes: [ID], price_min: Float, price_max: Float, sort: Int): [Product]!
-    searchProduct(text: String!, pageNumber: Int!, sort: Int): ProductPage!
+    getProductByCategory(level_code: Int, pageNumber: Int, colors: [ID], sizes: [ID], price_min: Float, price_max: Float, sort: Int, person_id: ID): [Product]!
+    searchProduct(text: String!, pageNumber: Int!, sort: Int, person_id: ID): ProductPage!
     getCarts(ids: [ID], person_id: ID): [Cart]!
     getPerson(id: ID): Person!
     getOrder(person_id: ID): [Order]!
+    getFavorites(person_id: ID): [Product]!
 }
 type RootMutation {
     createAccount(accountInput: AccountInput): Account

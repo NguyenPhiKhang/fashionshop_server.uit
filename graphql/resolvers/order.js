@@ -27,19 +27,22 @@ module.exports = {
     updateOrder: async (args)=>{
         try {
             const order = await Order.findOne({_id: args.id}).populate("carts");
-            console.log(order);
-            // if(args.delivery_status==="Đã xác nhận"&&order.delivery_status==="Chờ xác nhận"){
-            //     await order.carts
-            // }
-            // else{
-            //     if(args.delivery_status==="Huỷ"&&order.delivery_status!=="Chờ xác nhận"){
+            if(args.delivery_status==="Đã xác nhận"&&order.delivery_status==="Chờ xử lí"){
+                await Promise.all(order.carts.map(async or=>{
+                    await OptionAmount.updateOne({_id: or.option_amount_id}, {$inc: {amount: -or.amount}})
+                }));
+            }
+            else{
+                if(args.delivery_status==="Huỷ"&&order.delivery_status!=="Chờ xác nhận"){
+                    await Promise.all(order.carts.map(async or=>{
+                        await OptionAmount.updateOne({_id: or.option_amount_id}, {$inc: {amount: or.amount}})
+                    }));
+                }
+            }
 
-            //     }
-            // }
-
-            // order.delivery_status = await args.delivery_status;
-            // order.shipping_unit = (typeof(args.shipping_unit)==="undefined")? await order.shipping_unit: await args.shipping_unit;
-            // await order.save();
+            order.delivery_status = await args.delivery_status;
+            order.shipping_unit = (typeof(args.shipping_unit)==="undefined")? await order.shipping_unit: await args.shipping_unit;
+            await order.save();
 
             return true;
         } catch (error) {
