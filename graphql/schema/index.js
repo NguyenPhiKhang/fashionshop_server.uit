@@ -277,6 +277,7 @@ type RootQuery {
     getPerson(id: ID): Person!
     getOrder(person_id: ID): [Order]!
     getFavorites(person_id: ID): [Product]!
+    getReviews(person_id: ID): [Review]!
 }
 type RootMutation {
     createAccount(accountInput: AccountInput): Account

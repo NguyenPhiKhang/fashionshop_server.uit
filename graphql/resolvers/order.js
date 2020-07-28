@@ -51,5 +51,15 @@ module.exports = {
         } catch (error) {
             throw error;
         }
+    },
+    getOrder: async (args)=>{
+        try {
+            const orders = await Order.find({person_id: args.person_id});
+            return await Promise.all(orders.map(async a =>{
+                return await transformOrder(a);
+            }));
+        } catch (error) {
+            throw error;
+        }
     }
 }

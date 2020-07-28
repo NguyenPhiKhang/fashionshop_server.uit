@@ -16,6 +16,7 @@ module.exports = {
             });
             const reviewSave = await review.save();
             const cartInfo = await Cart.findOne({_id: args.cartItem_id}).populate("person_id");
+            console.log(cartInfo);
             // await Product.updateOne({_id: args.product_id}, {$push: {review: reviewSave.id}, $inc: {total_review: 1}});
             const prod = await Product.findOne({ _id: cartInfo.product_id }).populate("rating_star");
             await prod.review.push(reviewSave.id);
@@ -56,12 +57,25 @@ module.exports = {
                 prod.rating_star = await ratingSave;
             }
             await prod.save();
-            // await Person.updateOne({ _id: args.person_id }, { $push: { reviews: reviewSave.id } });
-            await cartInfo.person_id.push(reviewSave.id);
+            await cartInfo.person_id.reviews.push(reviewSave.id);
             await cartInfo.person_id.save();
             cartInfo.isReview = await true;
             await cartInfo.save();
+
+            // await Review.deleteOne({_id: "5f2023bed384450ac25375c5"});
+            // await Product.updateOne({_id: "5f02bbd1cbe29022dcd29791"}, {$set: {review: []}});
+            // await Person.updateOne
             return await transformReview(reviewSave);
+        } catch (error) {
+            throw error;
+        }
+    },
+    getReviews: async (args)=>{
+        try {
+            const reviews = await Person.findOne({_id: args.person_id}, {_id: 0, reviews: 1}).populate("reviews");
+            return await Promise.all(reviews.reviews.map(async rv=>{
+                return await transformReview(rv);
+            }));
         } catch (error) {
             throw error;
         }
