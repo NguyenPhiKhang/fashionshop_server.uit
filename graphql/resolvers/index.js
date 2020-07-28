@@ -8,6 +8,7 @@ const levelCategoriesResolver = require("./levelcategories");
 const orderResolver = require("./order");
 const cartResolver = require("./cart");
 const personResolver = require("./person");
+const reviewResolver = require("./review");
 
 const rootResolver = {
   ...authResolver,
@@ -19,7 +20,8 @@ const rootResolver = {
   ...levelCategoriesResolver,
   ...orderResolver,
   ...personResolver,
-  ...cartResolver
+  ...cartResolver,
+  ...reviewResolver,
 };
 
 module.exports = rootResolver;

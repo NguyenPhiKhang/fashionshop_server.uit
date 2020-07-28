@@ -33,6 +33,10 @@ const personSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "Cart"
     }],
+    reviews: [{
+        type: Schema.Types.ObjectId,
+        ref: "Review"
+    }],
     record_status: {
         type: Boolean,
         default: true

@@ -166,7 +166,7 @@ module.exports = {
                 // if (typeof (args.person_id) !== "undefined" && typeof (product.favoritors.length) !== "undefined" && product.favoritors.length !== 0) {
                 //     isFavorite = await product.favoritors.includes(args.person_id);
                 // }
-                const returnProduct = await transformProduct(product);
+                const returnProduct = await transformProduct(product._doc);
                 return await returnProduct;
                 // return await { ...returnProduct, isFavorite: isFavorite };
             }));
@@ -290,7 +290,7 @@ module.exports = {
             }
 
             return await Promise.all(products.map(async product => {
-                return await transformProduct(product);
+                return await transformProduct(product._doc);
             }));
             // const a = await Product.find({ product_code: { $exists: true } });
             // a.forEach(async function (x) {
@@ -312,7 +312,7 @@ module.exports = {
             const total = await Product.countDocuments({ $text: { $search: newText } });
             const products = await Product.find({ $text: { $search: newText } }).sort((typeof (args.sort) === "undefined" || args.sort === 0) ? {} : { final_price: args.sort }).skip(page.skip).limit(page.limit);
             const prods = await Promise.all(products.map(async product => {
-                return await transformProduct(product);
+                return await transformProduct(product._doc);
             }));
 
             return { total_record: total, products: prods };

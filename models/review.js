@@ -3,18 +3,23 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const reviewSchema = new Schema({
-    person_id: {
+    // person_id: {
+    //     type: Schema.Types.ObjectId,
+    //     require: true
+    // },
+    // product_id: {
+    //     type: Schema.Types.ObjectId,
+    //     required: true
+    // },
+    cartItem_id: {
         type: Schema.Types.ObjectId,
-        require: true
-    },
-    product_id: {
-        type: Schema.Types.ObjectId,
-        required: true
+        require: true,
+        ref: "Cart"
     },
     data: {
         type: String
     },
-    image:[{
+    images:[{
         type: String
     }],
     star: Number

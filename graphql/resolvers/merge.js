@@ -15,7 +15,6 @@ const AttributeProduct = require("../../models/attribute_product");
 const OptionAmount = require("../../models/option_amount");
 const Order = require("../../models/order");
 const Cart = require("../../models/cart");
-const FavoriteProduct = require("../../models/favorite_products");
 
 const categoryLoader = new DataLoader(async id => {
     if (typeof (id) === "number" || typeof (id[0]) === "number") {
@@ -106,11 +105,6 @@ const cartLoader = new DataLoader(cartIds =>{
     return carts(cartIds);
 });
 
-const favoriteLoader = new DataLoader(favId=>{
-    // if(typeof(favId)==="undefined")
-    //     return false;
-    // else return 
-})
 
 // const optionAmountCartLoader = new DataLoader(opAmountIds => {
 //     return optionAmountsCart(opAmountIds);
@@ -240,6 +234,15 @@ const SingleOptionAmount = async opAmountId => {
     }
 }
 
+const SingleCart = async cartId =>{
+    try {
+        const cart = await cartLoader.load(cartId);
+        return cart;
+    } catch (error) {
+        throw error;
+    }
+}
+
 const options = async (optionIds) => {
     try {
         // const options = await Promise.all(optionIds.map(async op =>{
@@ -313,20 +316,37 @@ const products = async productIds => {
     try {
         let prods = [];
         if (typeof (productIds[0]) === "number" || typeof (productIds) === "number") {
-            prods = await Product.find({ product_code: { $in: productIds } });
+            // prods = await Product.find({ product_code: { $in: productIds } });
+            prods = await Product.aggregate([
+                { $match: { product_code: { $in: productIds } } },
+                { $addFields: { "__sort": { $indexOfArray: [productIds, "$product_code"] } } },
+                { $sort: { "__sort": 1 } }
+            ]);
         } else {
             // await productIds.map(async ddd=>{
             //     const a =  await Product.findById(ddd);
             //     console.log(a);
             // });
 
-            prods = await Product.find({ _id: { $in: productIds } });
+            prods = await Product.aggregate([
+                { $match: { _id: { $in: productIds } } },
+                { $addFields: { "__sort": { $indexOfArray: [productIds, "$_id"] } } },
+                { $sort: { "__sort": 1 } }
+            ]);
         }
-        // prods.sort((a, b) => {
-        //     return (
-        //         productIds.indexOf(a._id.toString()) - productIds.indexOf(b._id.toString())
-        //     );
-        // });
+
+        if (prods.length !== productIds.length) {
+            // console.log("ok");
+            const arrayPro = await (productIds.map(proID => {
+                return prods.find(pId => pId._id.toString() === proID.toString());
+            }));
+
+            return await Promise.all(arrayPro.map(async pro => {
+                return await transformProduct(pro);
+            }));
+        }
+
+
         return prods.map(prod => {
             return transformProduct(prod);
         });
@@ -398,13 +418,25 @@ const optionAmounts = async opAmountIds => {
 
 const optionAmountDetail = async opAmountIds => {
     try {
-        const optionAmounts = await OptionAmount.find({ _id: { $in: opAmountIds } });
+        // const optionAmounts = await OptionAmount.find({ _id: { $in: opAmountIds } });
 
-        // optionAmounts.sort((a, b) => {
-        //     return (
-        //         opAmountIds.indexOf(a._id.toString()) - opAmountIds.indexOf(b._id.toString())
-        //     );
-        // });
+        const optionAmounts = await OptionAmount.aggregate([
+            { $match: { _id: { $in: opAmountIds } } },
+            { $addFields: { "__sort": { $indexOfArray: [opAmountIds, "$_id"] } } },
+            { $sort: { "__sort": 1 } }
+        ]);
+
+        if (optionAmounts.length !== opAmountIds.length) {
+            // console.log("ok");
+            const arrayPro = await (opAmountIds.map(opA => {
+                return prods.find(op => op._id.toString() === opA.toString());
+            }));
+
+            return await Promise.all(arrayPro.map(async opAmount => {
+                return await transformOptionAmountDetail(opAmount);
+            }));
+        }
+        
         return await Promise.all(optionAmounts.map(async opAmount => {
             return await transformOptionAmountDetail(opAmount);
         }));
@@ -540,13 +572,13 @@ const transformAttributeProduct = attrProduct => {
 
 const transformProduct = async product => {
     return await {
-        ...product._doc,
-        _id: product.id,
-        rating_star: RatingStarBind.bind(this, product._doc.rating_star),
-        categories: LevelCategoriesBind.bind(this, product._doc.categories),
-        attribute: () => attributeProductLoader.loadMany(product._doc.attribute),
-        option_amount: () => optionAmountLoader.loadMany(product._doc.option_amount),
-        isFavorite: async (args)=> await Person.countDocuments({$and: [{_id: args.person_id}, {favorites: product.id}]})>0
+        ...product,
+        _id: product._id,
+        rating_star: RatingStarBind.bind(this, product.rating_star),
+        categories: LevelCategoriesBind.bind(this, product.categories),
+        attribute: () => attributeProductLoader.loadMany(product.attribute),
+        option_amount: () => optionAmountLoader.loadMany(product.option_amount),
+        isFavorite: async (args)=> await Person.countDocuments({$and: [{_id: args.person_id}, {favorites: product._id}]})>0
     }
 }
 
@@ -574,11 +606,11 @@ const transformOptionAmount = opAmount => {
 
 const transformOptionAmountDetail = opAmount => {
     return {
-        ...opAmount._doc,
-        _id: opAmount.id,
-        option_color: SingleOption.bind(this, opAmount._doc.option_color),
-        option_size: SingleOption.bind(this, opAmount._doc.option_size),
-        product: SingleProduct.bind(this, opAmount._doc.product_code)
+        ...opAmount,
+        _id: opAmount._id,
+        option_color: SingleOption.bind(this, opAmount.option_color),
+        option_size: SingleOption.bind(this, opAmount.option_size),
+        product: SingleProduct.bind(this, opAmount.product_code)
     }
 }
 
@@ -605,6 +637,16 @@ const transformCart = cart => {
     }
 }
 
+const transformReview = review =>{
+    return {
+        ...review._doc,
+        _id: review.id,
+        createdAt: dateToString(review._doc.createdAt),
+        updatedAt: dateToString(review._doc.updatedAt),
+        cartItem: SingleCart.bind(this, review._doc.cartItem_id)
+    }
+}
+
 const transformBill = bill => {
     return {
         ...bill._doc,
@@ -624,5 +666,6 @@ module.exports = {
     transformOrder: transformOrder,
     transformBill: transformBill,
     transformProductDetail: transformProductDetail,
-    transformCart: transformCart
+    transformCart: transformCart,
+    transformReview: transformReview,
 }

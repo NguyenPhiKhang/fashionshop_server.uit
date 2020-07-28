@@ -11,8 +11,8 @@ module.exports = {
                 product_id: a.product_id,
                 option_amount_id: a.option_amount_id,
                 amount: a.amount,
-                price_order: a.price_order,
-                isOrder: false
+                isOrder: false,
+                isReview: false
             });
             const cartSave = await cart.save();
             const person = await Person.findById(a.person_id);
@@ -47,10 +47,19 @@ module.exports = {
         try {
             await Cart.deleteMany({ _id: { $in: args.ids } });
             const person = await Person.findOne({ carts: { $all: args.ids } });
-            await Promise.all(args.ids.map(async c => {
+            console.log(person);
+            args.ids.forEach(async c => {
+                console.log("idssss");
+                console.log(c);
                 let i = await person.carts.indexOf(c);
+                console.log("indexxxx");
+                console.log(i);
                 await person.carts.splice(i, 1);
-            }));
+                console.log("person carts after delete");
+                console.log(person.carts);
+            });
+
+
             await person.save();
             return true;
         } catch (error) {
@@ -59,7 +68,7 @@ module.exports = {
     },
     updateCart: async (args) => {
         try {
-            await Cart.updateOne({_id: args.id}, { $set: { amount: args.amount, price_order: args.price } });
+            await Cart.updateOne({_id: args.id}, { $set: { amount: args.amount} });
             return true;
         } catch (error) {
             throw error;

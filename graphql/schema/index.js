@@ -111,11 +111,10 @@ type ProductDetail{
 }
 type Review{
   _id: ID!
-  person: Person!
-  product: Product!
+  cartItem: Cart!
   data: String!
   image: [String]
-  star: Float
+  star: Int!
   createdAt: String!
   updatedAt: String!
 }
@@ -180,7 +179,6 @@ type Cart{
   person: Person!
   option_amount: OptionAmountCart!
   amount: Int!
-  price_order: Float!
 }
 type Bill{
   person: ID
@@ -253,7 +251,6 @@ input CartInput{
   product_id: ID!
   option_amount_id: ID!
   amount: Int
-  price_order: Float
 }
 input OrderInput{
   person_id: ID!
@@ -296,10 +293,11 @@ type RootMutation {
     updateProduct(productEditInput: ProductEditInput): String
     addCart(cartInput: CartInput): Cart
     deleteCart(ids: [ID]!): Boolean
-    updateCart(id: ID, amount: Int, price: Float): Boolean
+    updateCart(id: ID, amount: Int): Boolean
     createOrder(orderInput: OrderInput): Order
     updatePerson(id: ID, name: String): Boolean
     updateOrder(id: ID, shipping_unit: String, delivery_status: String): Boolean
+    createReview(cartItem_id: ID!, data: String!, images: [String], star: Int!): Review
 }
 schema {
     query: RootQuery

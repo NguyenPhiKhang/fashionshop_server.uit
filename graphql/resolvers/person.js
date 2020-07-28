@@ -30,7 +30,7 @@ module.exports = {
         try {
             const products = await Person.findOne({_id: args.person_id}, {favorites: 1, _id: 0}).populate("favorites");
             const prods = await Promise.all(products.favorites.map(async product => {
-                return await transformProduct(product);
+                return await transformProduct(product._doc);
             }));
 
             return prods;

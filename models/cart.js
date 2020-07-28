@@ -29,6 +29,10 @@ const cartSchema = new Schema({
         type: Boolean,
         require: true,
         default: false
+    },
+    isReview: {
+        type: Boolean,
+        default: false
     }
 });
 

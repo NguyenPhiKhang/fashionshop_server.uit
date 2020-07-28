@@ -1,5 +1,6 @@
 const Order = require("../../models/order");
 const Cart = require("../../models/cart");
+const Product = require("../../models/product");
 const OptionAmount = require("../../models/option_amount");
 const { transformOrder } = require("./merge");
 
@@ -29,13 +30,15 @@ module.exports = {
             const order = await Order.findOne({_id: args.id}).populate("carts");
             if(args.delivery_status==="Đã xác nhận"&&order.delivery_status==="Chờ xử lí"){
                 await Promise.all(order.carts.map(async or=>{
-                    await OptionAmount.updateOne({_id: or.option_amount_id}, {$inc: {amount: -or.amount}})
+                    await OptionAmount.updateOne({_id: or.option_amount_id}, {$inc: {amount: -or.amount}});
+                    await Product.updateOne({_id: or.product_id}, {$inc: {order_count: 1}});
                 }));
             }
             else{
-                if(args.delivery_status==="Huỷ"&&order.delivery_status!=="Chờ xác nhận"){
+                if(args.delivery_status==="Huỷ"&&order.delivery_status!=="Chờ xử lí"){
                     await Promise.all(order.carts.map(async or=>{
-                        await OptionAmount.updateOne({_id: or.option_amount_id}, {$inc: {amount: or.amount}})
+                        await OptionAmount.updateOne({_id: or.option_amount_id}, {$inc: {amount: or.amount}});
+                        await Product.updateOne({_id: or.product_id}, {$inc: {order_count: -1}});
                     }));
                 }
             }

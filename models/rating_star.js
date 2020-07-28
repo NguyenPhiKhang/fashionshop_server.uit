@@ -8,6 +8,7 @@ const ratingStarSchema = new Schema({
     star3: Number,
     star4: Number,
     star5: Number,
+    total_star: Number,
     product_id: {
         type: Schema.Types.ObjectId,
         require: true,
