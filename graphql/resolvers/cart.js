@@ -47,20 +47,12 @@ module.exports = {
         try {
             await Cart.deleteMany({ _id: { $in: args.ids } });
             const person = await Person.findOne({ carts: { $all: args.ids } });
-            console.log(person);
-            args.ids.forEach(async c => {
-                console.log("idssss");
-                console.log(c);
-                let i = await person.carts.indexOf(c);
-                console.log("indexxxx");
-                console.log(i);
+            for (const c of args.ids){
+                const i = await person.carts.indexOf(c);
                 await person.carts.splice(i, 1);
-                console.log("person carts after delete");
-                console.log(person.carts);
-            });
-
-
+            };
             await person.save();
+            // await Person.findByIdAndUpdate("5f0212a9a3834d2fc0d639f0", {$set: {carts: []}})
             return true;
         } catch (error) {
             throw error;
