@@ -15,6 +15,7 @@ const AttributeProduct = require("../../models/attribute_product");
 const OptionAmount = require("../../models/option_amount");
 const Order = require("../../models/order");
 const Cart = require("../../models/cart");
+const Review = require("../../models/review");
 
 const categoryLoader = new DataLoader(async id => {
     if (typeof (id) === "number" || typeof (id[0]) === "number") {
@@ -105,6 +106,10 @@ const cartLoader = new DataLoader(cartIds =>{
     return carts(cartIds);
 });
 
+const reviewLoader = new DataLoader(reviewIds=>{
+    return reviews(reviewIds);
+})
+
 
 // const optionAmountCartLoader = new DataLoader(opAmountIds => {
 //     return optionAmountsCart(opAmountIds);
@@ -180,7 +185,7 @@ const RatingStarBind = async (ratingId) => {
         if (ratingId === null)
             return null;
         const rating = await ratingStarLoader.load(ratingId);
-        return transformRatingStar(rating);
+        return await transformRatingStar(rating);
     } catch (error) {
         throw error;
     }
@@ -350,6 +355,18 @@ const products = async productIds => {
         return prods.map(prod => {
             return transformProduct(prod);
         });
+    } catch (error) {
+        throw error;
+    }
+}
+
+const reviews = async reviewIds=>{
+    try {
+        console.log(reviewIds);
+        const reviews = await Review.find({_id: {$in: reviewIds}});
+        return await Promise.all(reviews.map(async rv=>{
+            return await transformReview(rv);
+        }))
     } catch (error) {
         throw error;
     }
@@ -546,7 +563,7 @@ const transformRatingStar = rating => {
     return {
         ...rating._doc,
         _id: rating.id,
-        product: SingleProduct.bind(rating._doc.product_id)
+        product: SingleProduct.bind(this, rating._doc.product_id)
     }
 }
 
@@ -578,6 +595,7 @@ const transformProduct = async product => {
         categories: LevelCategoriesBind.bind(this, product.categories),
         attribute: () => attributeProductLoader.loadMany(product.attribute),
         option_amount: () => optionAmountLoader.loadMany(product.option_amount),
+        review: ()=> reviewLoader.loadMany(product.review),
         isFavorite: async (args)=> await Person.countDocuments({$and: [{_id: args.person_id}, {favorites: product._id}]})>0
     }
 }

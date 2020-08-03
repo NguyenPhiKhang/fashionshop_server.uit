@@ -50,7 +50,8 @@ type RatingStar{
   star3: Int
   star4: Int
   star5: Int
-  product: Product!
+  total_star: Int
+  product: Product
 }
 type LevelCategories{
   _id: ID!
@@ -113,7 +114,7 @@ type Review{
   _id: ID!
   cartItem: Cart!
   data: String!
-  image: [String]
+  images: [String]
   star: Int!
   createdAt: String!
   updatedAt: String!
@@ -193,6 +194,10 @@ type Bill{
 type ProductPage{
   products: [Product]!,
   total_record: Int!
+}
+type InfoReviews{
+  rating_star: RatingStar!
+  reviews: [Review]!
 }
 input AccountInput {
   name: String!
@@ -278,6 +283,7 @@ type RootQuery {
     getOrder(person_id: ID): [Order]!
     getFavorites(person_id: ID): [Product]!
     getReviews(person_id: ID): [Review]!
+    getReviewsOfProduct(product_id: ID!, sort: Int, pageNumber: Int!): InfoReviews!
 }
 type RootMutation {
     createAccount(accountInput: AccountInput): Account

@@ -157,7 +157,7 @@ module.exports = {
                     limit = 10;
                 }
                 products = (typeof (args.id) !== "undefined")
-                    ? await Product.find({ _id: { $in: args.id } }).skip(skip).limit(limit)
+                    ? await Product.find({ _id: { $in: args.id } }, {review: {$slice: -3}}).skip(skip).limit(limit)
                     : (args.sort === -1 || args.sort === 1) ? await Product.find({}).sort({ final_price: args.sort }).skip(skip).limit(limit) : await Product.find({}).skip(skip).limit(limit);
             }
             let total = (typeof (args.id) !== "undefined" || typeof (args.product_ids) !== "undefined") ? products.length : await Product.countDocuments({});
