@@ -180,6 +180,8 @@ type Cart{
   person: Person!
   option_amount: OptionAmountCart!
   amount: Int!
+  isOrder: Boolean
+  isReview: Boolean
 }
 type Bill{
   person: ID
