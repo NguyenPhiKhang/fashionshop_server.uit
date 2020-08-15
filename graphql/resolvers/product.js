@@ -157,7 +157,7 @@ module.exports = {
                     limit = 10;
                 }
                 products = (typeof (args.id) !== "undefined")
-                    ? await Product.find({ _id: { $in: args.id } }, {review: {$slice: -3}}).skip(skip).limit(limit)
+                    ? await Product.find({ _id: { $in: args.id } }, { review: { $slice: -3 } }).skip(skip).limit(limit)
                     : (args.sort === -1 || args.sort === 1) ? await Product.find({}).sort({ final_price: args.sort }).skip(skip).limit(limit) : await Product.find({}).skip(skip).limit(limit);
             }
             let total = (typeof (args.id) !== "undefined" || typeof (args.product_ids) !== "undefined") ? products.length : await Product.countDocuments({});
@@ -320,7 +320,87 @@ module.exports = {
             throw error;
         }
     },
-    
+    updateProduct: async (args) => {
+        try {
+            const { id, name, price, promotion_percent, weight, is_freeship,
+                description, category, images, option_amount } = await args.productEditInput;
+
+            const product = await Product.findOne({ _id: id });
+            product.name = await name;
+            product.price = await price;
+            product.promotion_percent = await promotion_percent;
+            product.weight = await weight;
+            product.is_freeship = await is_freeship;
+            product.description = await description;
+            // if (category !== product.category_id) {
+            //     const cats = await (category).split('/');
+            //     let levelcategories = await LevelCategories.findOne({ category_level1_id: cats[0], category_level2_id: cats[1], category_level3_id: cats[2] });
+            //     if (levelcategories === null) {
+            //         const levelcategory = new LevelCategories({
+            //             category_level1_id: cats[0],
+            //             category_level2_id: cats[1],
+            //             category_level3_id: cats[2],
+            //             products: [product]
+            //         });
+            //         levelcategories = await levelcategory.save();
+            //     } else {
+            //         await levelcategories.products.push(product);
+            //         await levelcategories.save();
+            //     }
+            //     product.category_id = category;
+            //     await LevelCategories.updateOne({_id: product.categories}, {$pull: {products: product._id}});
+            //     product.categories = levelcategories;
+            // }
+
+            let arrImageDel = [];
+            for (const img of product.images) {
+                if (images.includes(img) === false) {
+                    arrImageDel.push(img);
+                }
+            }
+            console.log(arrImageDel);
+            // await DeleteImage(arrImageDel);
+            product.images = await images;
+
+            // console.log(option_amount);
+            let arrNewOption = [];
+            let arrNewColor = [];
+            let arrNewSize = [];
+            for (const op of option_amount) {
+                const findOption = await OptionAmount.findOne({ $and: [{ option_color: op.color_id }, { option_size: op.size_id }, { product_code: product.product_code }] });
+                if (findOption === null) {
+                    const opAmount = new OptionAmount({
+                        product_code: product.product_code,
+                        option_color: op.color_id,
+                        option_size: op.size_id,
+                        amount: op.amount
+                    });
+                    console.log(opAmount);
+                    // const opSave = await opAmount.save();
+                    // arrNewOption.push(opSave);
+
+                    if (op.color_id !== null && arrNewColor.includes(op.color_id) === false) arrNewColor.push(op.color_id);
+                    if (op.size_id !== null && arrNewSize.includes(op.size_id) === false) arrNewSize.push(op.size_id);
+                } else {
+                    findOption.amount = await op.amount;
+                    console.log(findOption.amount);
+                    // await findOption.save();
+                }
+            }
+
+            console.log(arrNewColor);
+            console.log(arrNewSize);
+
+            for(const attr of product.attribute){
+                
+            }
+
+            return true;
+        } catch (error) {
+            throw error;
+        }
+    }
+
     // addFreeship: async (args)=>{
     //     try {
     //         await Product.updateMany({},{$set: {is_freeship: false}});

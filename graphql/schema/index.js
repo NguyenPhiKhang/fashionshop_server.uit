@@ -238,13 +238,22 @@ input ProductEditInput{
   name: String
   price: Float
   images: [String]
-  imagesDeleted: [String]
-  promotion_price: Float
+  promotion_percent: Float
   weight: Float
   is_freeship: Boolean
   description: String
-  old_category: String
-  new_category: String
+  category: String
+  option_amount: [OptionAmountInput]
+}
+input PersonInput{
+  id: ID!
+  name: String
+  avatar: String
+  sex: String
+  number_phone: String
+  birthday: String
+  shipping_address: String
+  password: String
 }
 input OptionAmountInput{
   color_id: ID
@@ -297,12 +306,12 @@ type RootMutation {
     updateTypeSizeCat(id: Int, size: String): Boolean
     createBillProduct(person_id: ID, price_ship: Float, total_price: Float, address: String, method_payment: String, orders: [CartInput]): Bill
     actionFavorite(person_id: ID, product_id: ID): Boolean
-    updateProduct(productEditInput: ProductEditInput): String
+    updateProduct(productEditInput: ProductEditInput): Boolean
     addCart(cartInput: CartInput): Cart
     deleteCart(ids: [ID]!): Boolean
     updateCart(id: ID, amount: Int): Boolean
     createOrder(orderInput: OrderInput): Order
-    updatePerson(id: ID, name: String): Boolean
+    updatePerson(personInput: PersonInput): Boolean
     updateOrder(id: ID, shipping_unit: String, delivery_status: String): Boolean
     createReview(cartItem_id: ID!, data: String!, images: [String], star: Int!): Review
 }

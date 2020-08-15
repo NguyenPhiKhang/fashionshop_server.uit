@@ -28,14 +28,14 @@ module.exports = {
     updateOrder: async (args)=>{
         try {
             const order = await Order.findOne({_id: args.id}).populate("carts");
-            if(args.delivery_status==="Đã xác nhận"&&order.delivery_status==="Chờ xử lí"){
+            if(args.delivery_status.toLowerCase()==="đã xác nhận"&&order.delivery_status.toLowerCase()==="chờ xử lí"){
                 await Promise.all(order.carts.map(async or=>{
                     await OptionAmount.updateOne({_id: or.option_amount_id}, {$inc: {amount: -or.amount}});
                     await Product.updateOne({_id: or.product_id}, {$inc: {order_count: 1}});
                 }));
             }
             else{
-                if(args.delivery_status==="Huỷ"&&order.delivery_status!=="Chờ xử lí"){
+                if(args.delivery_status.toLowerCase()==="huỷ"&&order.delivery_status.toLowerCase()!=="chờ xử lí"){
                     await Promise.all(order.carts.map(async or=>{
                         await OptionAmount.updateOne({_id: or.option_amount_id}, {$inc: {amount: or.amount}});
                         await Product.updateOne({_id: or.product_id}, {$inc: {order_count: -1}});
